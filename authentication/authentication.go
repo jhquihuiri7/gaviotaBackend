@@ -20,7 +20,7 @@ func GenerateJWT(credentials variables.UserCredential) (string, string) {
 	claim := variables.Claim{
 		Credentials: credentials,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Minute * 1).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 5).Unix(),
 			Issuer:    "Logiciel Applab",
 		},
 	}

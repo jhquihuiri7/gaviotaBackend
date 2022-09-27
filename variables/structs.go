@@ -1,6 +1,9 @@
 package variables
 
-import "github.com/golang-jwt/jwt"
+import (
+	"github.com/golang-jwt/jwt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 //Login
 type UserLogin struct {
@@ -16,7 +19,7 @@ type ChangePasswordUser struct {
 }
 type RequestResponse struct {
 	Error  string `json:"error"`
-	Succes string `json:"token"`
+	Succes string `json:"succes"`
 }
 type LoginResponse struct {
 	Error string `json:"error"`
@@ -51,3 +54,25 @@ type ReferencesData struct {
 	Id   string `bson:"_id" json:"id"`
 	Name string `bson:"name" json:"name"`
 }
+
+//Reserves
+type Reserve struct {
+	Id string `bson:"_id" json:"id"`
+	Reserve string 	`bson:"reserve" json:"reserve"`
+	Passenger string `bson:"passenger" json:"passenger"`
+	Referece string `bson:"referece" json:"referece"`
+	User string `bson:"user" json:"user"`
+	Age int `bson:"age" json:"age"`
+	Date primitive.DateTime `bson:"date" json:"date"`
+	Time string `bson:"time" json:"time"`
+	Passport string `bson:"passport" json:"passport"`
+	Country string `bson:"country" json:"country"`
+	Price int `bson:"price" json:"price"`
+	Ship string `bson:"ship" json:"ship"`
+	Route string `bson:"route" json:"route"`
+	IsConfirmed bool `bson:"isConfirmed" json:"isConfirmed"`
+	IsPayed bool `bson:"isPayed" json:"isPayed"`
+}
+
+
+

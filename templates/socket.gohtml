@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>WEBSOCKET</h1>
+
+
+<script>
+    // Create WebSocket connection.
+    const socket = new WebSocket('wss://gaviotabackend.uc.r.appspot.com/ws',["soap", "wamp"]);
+    socket.addEventListener('error', (event) => {
+        console.log(event);
+    })
+
+
+
+
+    // Connection opened
+    socket.addEventListener('open', (event) => {
+        socket.send('Hello Server!');
+    });
+
+    // Listen for messages
+    socket.addEventListener('message', (event) => {
+        console.log('Message from server ', event.data);
+    });
+</script>
+</body>
+</html>

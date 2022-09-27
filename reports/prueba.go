@@ -11,8 +11,21 @@ import (
 
 func PDF(w http.ResponseWriter, r *http.Request) {
 
-	m := pdf.NewMaroto(consts.Portrait, consts.Letter)
-	//m.SetBorder(true)
+	m := pdf.NewMaroto(consts.Portrait, consts.A4)
+	m.SetBorder(false)
+	m.RegisterHeader(func() {
+		m.Row(20, func() {
+			m.Col(4, func() {
+				m.Text("Jhonatan Q", props.Text{
+					Top:         2,
+					Size:        10,
+					Extrapolate: true,
+				})
+			})
+			m.ColSpace(4)
+		})
+
+	})
 
 	m.Row(40, func() {
 		m.Col(4, func() {
@@ -30,6 +43,35 @@ func PDF(w http.ResponseWriter, r *http.Request) {
 	})
 
 	m.Line(10)
+
+	m.SetBorder(true)
+	left, _, rigth, _ := m.GetPageMargins()
+	width, _ := m.GetPageSize()
+	fmt.Println(width)
+	fmt.Println(width - left - rigth)
+	m.Row(20, func() {
+		m.Col(12, func() {
+			m.Text("Gaviota", props.Text{
+				Align: consts.Center,
+				Top:   10,
+			})
+		})
+	})
+	m.SetBorder(true)
+	m.TableList([]string{"Hola", "Hola"}, [][]string{{"Perro", "GAtos"}, {"Perro", "GAtos"}}, props.TableList{
+		HeaderProp: props.TableListContent{
+			Size: 9,
+		},
+		ContentProp: props.TableListContent{
+			Size: 8,
+		},
+		Align:                  consts.Center,
+		VerticalContentPadding: 0,
+		//AlternatedBackground: &grayColor,
+		HeaderContentSpace: -0.25,
+		Line:               false,
+	})
+	m.SetBorder(false)
 
 	m.Row(40, func() {
 		m.Col(4, func() {
@@ -62,7 +104,6 @@ func PDF(w http.ResponseWriter, r *http.Request) {
 			})
 		})
 	})
-
 	m.SetBorder(true)
 
 	m.Row(40, func() {
@@ -81,8 +122,6 @@ func PDF(w http.ResponseWriter, r *http.Request) {
 		})
 	})
 
-	m.SetBorder(false)
-
 	dd, err := m.Output()
 	if err != nil {
 		fmt.Println("Could not save PDF:", err)
@@ -92,6 +131,6 @@ func PDF(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", r.Header.Get("application/pdf"))
 
 	w.Write(dd.Bytes())
-	fmt.Println(dd.String())
+	//fmt.Println(dd.String())
 
 }

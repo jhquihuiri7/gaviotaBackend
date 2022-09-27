@@ -8,6 +8,14 @@ import (
 var UsersCollection *mongo.Collection
 var ReferencesCollection *mongo.Collection
 var FrequentsCollection *mongo.Collection
+var ReservesGaviotaCollection *mongo.Collection
+var ReservesOtherCollection *mongo.Collection
+var BinReservesCollection *mongo.Collection
 
 var PrivateKey *rsa.PrivateKey
 var PublicKey *rsa.PublicKey
+
+
+
+
+

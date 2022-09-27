@@ -15,9 +15,18 @@ func AddReference(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&references)
 	references.Id = GenerateID()
 	_, err := variables.ReferencesCollection.InsertOne(context.TODO(), references)
+	response := variables.RequestResponse{}
+	if err != nil {
+		log.Fatal(err)
+		response.Error = "No se pudo agregar referencia"
+	} else {
+		response.Succes = "Referencia agregada correctamente"
+	}
+	JSONresponse, err := json.Marshal(response)
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Fprintln(w, string(JSONresponse))
 }
 func GetReference(w http.ResponseWriter, r *http.Request) {
 	cursor, err := variables.ReferencesCollection.Find(context.TODO(), bson.D{})
@@ -66,8 +75,17 @@ func EditReference(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 	_, err = variables.ReferencesCollection.UpdateOne(context.TODO(), bson.D{{"_id", reference.Id}}, bson.D{{"$set", bson.D{{"name", reference.Name}}}})
+	response := variables.RequestResponse{}
+	if err != nil {
+		log.Fatal(err)
+		response.Error = "No se pudo editar referencia"
+	} else {
+		response.Succes = "Referencia editada correctamente"
+	}
+	JSONresponse, err := json.Marshal(response)
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Fprintln(w, string(JSONresponse))
 
 }

@@ -15,6 +15,6 @@ func (r *Reserve) RandomReserve(records [][]string) {
 	r.Passenger = records[rand.Intn(199)][0]
 	r.Age = age
 }
-func (r *Reserve)FormatTime(date string){
+func (r *Reserve) FormatTime(date string) {
 
 }

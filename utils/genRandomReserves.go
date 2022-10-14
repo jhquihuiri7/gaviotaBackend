@@ -34,4 +34,4 @@ func GetRandomReserves(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//func (r variables.Reserve)RandomReserve (n int){}
+//func (r variables.ReserveNumber)RandomReserve (n int){}

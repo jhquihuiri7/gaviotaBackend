@@ -11,73 +11,69 @@ import (
 	"net/http"
 )
 
-func DeleteReserve (w http.ResponseWriter, r *http.Request){
-	var deleteReserve variables.Reserve
+func DeleteReserve(w http.ResponseWriter, r *http.Request) {
+	var deleteReserves []variables.Reserve
 	var response variables.RequestResponse
-	err := json.NewDecoder(r.Body).Decode(&deleteReserve)
+	decoder := json.NewDecoder(r.Body)
+	_, err := decoder.Token()
 	if err != nil {
-		log.Fatal(err)
+		response.Error = "No fue posible decodificar reservas"
 	}
-	if deleteReserve.Id != ""{
-		var result *mongo.SingleResult
-		result = variables.ReservesGaviotaCollection.FindOne(context.TODO(),bson.D{{"_id",deleteReserve.Id}})
+	for decoder.More() {
+		var reserve variables.Reserve
+		err = decoder.Decode(&reserve)
+		if err != nil {
+			response.Error = "No fue posible decodificar todas las reservas"
+		}else {deleteReserves = append(deleteReserves, reserve)}
+	}
+	if len(deleteReserves) == 0 {
+		response.Error = "No hay reservas por eliminar"
+	}
+	for _, v:= range deleteReserves {
+		var binReserve variables.Reserve
+		result := variables.ReservesGaviotaCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}})
 		if result.Err() == mongo.ErrNoDocuments {
-			result = variables.ReservesOtherCollection.FindOne(context.TODO(),bson.D{{"_id",deleteReserve.Id}})
+			result = variables.ReservesOtherCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}})
 			if result.Err() == mongo.ErrNoDocuments {
-				response.Error = "No se encontró registro"
+				response.Error = "No se encontró reserva"
+				continue
 			}else {
-				_, err = variables.ReservesOtherCollection.DeleteOne(context.TODO(),bson.D{{"_id",deleteReserve.Id}})
-				if err != nil { response.Error = "No se pudo eliminar registro" }
+				err = result.Decode(&binReserve)
+				if err != nil {
+					response.Error = "No fue posible decodificar reservas"
+				}else {
+					_, err =variables.BinReservesCollection.InsertOne(context.TODO(),binReserve)
+					if err != nil {
+						response.Error = "No es posible enviar reserva a papelera"
+					}
+				}
+				count, _ := variables.ReservesOtherCollection.DeleteOne(context.TODO(),bson.D{{"_id",v.Id}})
+				if count.DeletedCount == 0 {
+					response.Error = "No fue posible eliminar un reserva"
+				}else {
+					response.Error = ""
+				}
 			}
 		}else {
-			_, err = variables.ReservesGaviotaCollection.DeleteOne(context.TODO(),bson.D{{"_id",deleteReserve.Id}})
-			if err != nil { response.Error = "No se pudo eliminar registro" }
-		}
-
-		if response.Error == "" {
-			err = result.Decode(&deleteReserve)
+			err = result.Decode(&binReserve)
 			if err != nil {
-				response.Error = "No se pudo agregar a papelera"
+				response.Error = "No fue posible decodificar reservas"
 			}else {
-				_, err = variables.BinReservesCollection.InsertOne(context.TODO(),deleteReserve)
-				if err != nil { response.Error = "No se pudo agregar a papelera" }else {response.Succes = "Reserva eliminada con éxito"}
+				_, err =variables.BinReservesCollection.InsertOne(context.TODO(),binReserve)
+				if err != nil {
+					response.Error = "No es posible enviar reserva a papelera"
+				}
+			}
+			count, _ := variables.ReservesGaviotaCollection.DeleteOne(context.TODO(),bson.D{{"_id",v.Id}})
+			if count.DeletedCount == 0 {
+				response.Error = "No fue posible eliminar un reserva"
+			}else {
+				response.Error = ""
 			}
 		}
-	}else {
-		var cursor *mongo.Cursor
-		var reserves []interface{}
-		cursor, _ = variables.ReservesGaviotaCollection.Find(context.TODO(),bson.D{{"reserve",deleteReserve.Reserve}})
-		fmt.Println(cursor.RemainingBatchLength())
-		if cursor.RemainingBatchLength() == 0 {
-			response.Error = "No se encontró registros"
-		}else {
-			_, err = variables.ReservesGaviotaCollection.DeleteMany(context.TODO(),bson.D{{"reserve",deleteReserve.Reserve}})
-			if err != nil { response.Error = "No se pudo eliminar registro"}
-		}
-		for cursor.Next(context.TODO()) {
-			i := variables.Reserve{}
-			err = cursor.Decode(&i)
-			if err != nil { response.Error = "No se pudo agregar a papelera"}
-			reserves = append(reserves, i)
-		}
-
-		cursor, err = variables.ReservesOtherCollection.Find(context.TODO(),bson.D{{"reserve",deleteReserve.Reserve}})
-		if cursor.RemainingBatchLength() == 0 {
-			if response.Error == "" {response.Error = "No se encontró registros"}
-		}else {
-			_, err = variables.ReservesOtherCollection.DeleteMany(context.TODO(),bson.D{{"reserve",deleteReserve.Reserve}})
-			if err != nil { response.Error = "No se pudo eliminar registro"}
-		}
-		for cursor.Next(context.TODO()) {
-			i := variables.Reserve{}
-			err = cursor.Decode(&i)
-			if err != nil { response.Error = "No se pudo agregar a papelera"}
-			reserves = append(reserves, i)
-		}
-		if len(reserves) > 0 {
-			_, err = variables.BinReservesCollection.InsertMany(context.TODO(),reserves)
-			if err != nil { response.Error = "No se pudo agregar a papelera"}else {response.Succes = "Reservas eliminada con éxito"}
-		}
+	}
+	if response.Error == "" {
+		response.Succes = "Reservas eliminadas correctamente"
 	}
 	JSONresponse, err := json.Marshal(response)
 	if err != nil {

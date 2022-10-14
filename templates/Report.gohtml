@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    function download(data, filename) {
+        const url = URL.createObjectURL(data);
+        const a = document.createElement('a');
+        a.download = filename;
+        a.href = url;
+        a.target = '_self';
+        a.click();
+        setTimeout(function () {
+            // For Firefox it is necessary to delay revoking the ObjectURL
+            a.remove();
+            URL.revokeObjectURL(url);
+        }, 100);
+    }
+    req = new XMLHttpRequest();
+    req.open('POST',"http://localhost/api/dailyReport",true);
+    req.responseType = 'blob';
+    //req.setRequestHeader('Authorization', 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJDcmVkZW50aWFscyI6eyJ1c2VyIjoiSlFVSUhVSVJJIiwicm9sIjoiYWRtaW4ifSwiZXhwIjoxNjY1Mjc4NjUzLCJpc3MiOiJMb2dpY2llbCBBcHBsYWIifQ.Xklu5eCJue5ivGxlMVz73sKIJsFRD8i6yWsPqA5W4xl7azNo7BiTmvbPs4n7E60x6wSD0jbcgUf9E4n9YMZpsE3t8La1SggW1m0VolTK9TxTOSS8To-PugAjWOgAl3y1XqVsKO_y9-A90Afpmztn0C0_gdz5wmqj_qtWSA5BMnI')
+    req.setRequestHeader('Content-Type','application/pdf')
+
+    req.onload = function (e) {
+        let blob = e.currentTarget.response;
+        let contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
+        let fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
+        download(blob, fileName)
+    };
+    req.send(JSON.stringify({
+        date:'2022-10-06T00:00:00.000+00:00',
+        time:'AM'
+    }));
+</script>
+</body>
+</html>

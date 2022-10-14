@@ -1,17 +1,16 @@
 package middleware
 
 import (
-	"fmt"
 	"gaviotaBackend/variables"
 	"github.com/golang-jwt/jwt"
 	"github.com/golang-jwt/jwt/request"
 	"net/http"
+	"strings"
 )
 
 func JWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() != "/api/login" && r.URL.String() != "/api/validateToken" {
-			fmt.Println(r.URL.String())
+		if r.URL.String() != "/api/login" && r.URL.String() != "/api/validateToken" && strings.Contains(r.URL.String(), "/api/dailyReport") != true && strings.Contains(r.URL.String(), "/response") != true {
 			token, err := request.ParseFromRequest(r, request.OAuth2Extractor, func(token *jwt.Token) (interface{}, error) {
 				return variables.PublicKey, nil
 			}, request.WithClaims(&variables.Claim{}))

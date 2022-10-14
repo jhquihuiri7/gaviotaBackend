@@ -20,8 +20,7 @@ func CORS(next http.Handler) http.Handler {
 		if r.Method == "POST" {
 			//w.WriteHeader(http.StatusOK)
 		}
-		//r.Header.Del("Origin")
-		// Next
+
 		next.ServeHTTP(w, r)
 		return
 	})

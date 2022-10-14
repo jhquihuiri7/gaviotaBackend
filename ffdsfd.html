@@ -5,45 +5,37 @@
     <title>Title</title>
 </head>
 <body>
-  <script>
-      req = new XMLHttpRequest();
-      req.open('GET',"http://localhost/admin/pdf",true);
-      req.responseType = 'blob';
-      req.setRequestHeader('Authorization', 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJDcmVkZW50aWFscyI6eyJ1c2VyIjoiSlFVSUhVSVJJIiwicm9sIjoiYWRtaW4ifSwiZXhwIjoxNjYzNzA1MjAwLCJpc3MiOiJMb2dpY2llbCBBcHBsYWIifQ.V8Un70fi_3BoqiHZkgaozSleDgq_cZLQdZhqhkvsP243H6EzX53xe7V67YybKwTzL-sbHaE92w2Se1Ydv2qxjSrZT1A8KRcyomSiC-4ttBizShxEOa5XUlEsy2dHTZimyN2V6qx9nuwmgnNLoTb7gAVOEHL80yrwTUTzzc_4Jqs')
-      req.setRequestHeader('Content-Type','application/pdf')
-      req.onload = function (e) {
-          var blob = e.currentTarget.response;
-          var contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
-          var fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
-          download(blob, fileName)
-      };
-      req.send();
 
-      //function saveBlob(blob, fileName) {
-      //    var a = document.createElement('a');
-      //    var binaryData = [];
-      //    binaryData.push(blob);
-      //    a.href = window.URL.createObjectURL(new Blob([blob], {type: "application/pdf"}));
-      //    a.download = fileName;
-      //    console.log("HOLA",a.href)
-      //    a.dispatchEvent(new MouseEvent('click'))
-      //    //a.dispatchEvent(new MouseEvent('click'));
-      //}
+  <script>
       function download(data, filename) {
           const url = URL.createObjectURL(data);
           const a = document.createElement('a');
           a.download = filename;
           a.href = url;
           a.target = '_self';
-
           a.click();
-
           setTimeout(function () {
               // For Firefox it is necessary to delay revoking the ObjectURL
               a.remove();
               URL.revokeObjectURL(url);
           }, 100);
       }
+      req = new XMLHttpRequest();
+      req.open('POST',"https://gaviotabackend.uc.r.appspot.com/admin/pdf",true);
+      req.responseType = 'blob';
+      req.setRequestHeader('Authorization', )
+      req.setRequestHeader('Content-Type','application/pdf')
+
+      req.onload = function (e) {
+          let blob = e.currentTarget.response;
+          let contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
+          let fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
+          download(blob, fileName)
+      };
+      req.send(JSON.stringify({
+          date:'2022-10-06T00:00:00.000+00:00',
+          time:'AM'
+      }));
   </script>
 </body>
 </html>

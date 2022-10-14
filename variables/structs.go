@@ -57,22 +57,55 @@ type ReferencesData struct {
 
 //Reserves
 type Reserve struct {
-	Id string `bson:"_id" json:"id"`
-	Reserve string 	`bson:"reserve" json:"reserve"`
-	Passenger string `bson:"passenger" json:"passenger"`
-	Referece string `bson:"referece" json:"referece"`
-	User string `bson:"user" json:"user"`
-	Age int `bson:"age" json:"age"`
-	Date primitive.DateTime `bson:"date" json:"date"`
-	Time string `bson:"time" json:"time"`
-	Passport string `bson:"passport" json:"passport"`
-	Country string `bson:"country" json:"country"`
-	Price int `bson:"price" json:"price"`
-	Ship string `bson:"ship" json:"ship"`
-	Route string `bson:"route" json:"route"`
-	IsConfirmed bool `bson:"isConfirmed" json:"isConfirmed"`
-	IsPayed bool `bson:"isPayed" json:"isPayed"`
+	Id            string `bson:"_id" json:"id"`
+	ReserveNumber string `bson:"reserve" json:"reserve"`
+	Passenger     string `bson:"passenger" json:"passenger"`
+	Referece    string             `bson:"referece" json:"referece"`
+	User        string             `bson:"user" json:"user"`
+	Age         int                `bson:"age" json:"age"`
+	Date        primitive.DateTime `bson:"date" json:"date"`
+	Time        string             `bson:"time" json:"time"`
+	Passport    string             `bson:"passport" json:"passport"`
+	Country     string             `bson:"country" json:"country"`
+	Price       int                `bson:"price" json:"price"`
+	Ship        string             `bson:"ship" json:"ship"`
+	Route       string             `bson:"route" json:"route"`
+	IsConfirmed bool               `bson:"isConfirmed" json:"isConfirmed"`
+	IsPayed     bool               `bson:"isPayed" json:"isPayed"`
+	IsBlocked bool `bson:"isBlocked" json:"isBlocked"`
 }
 
+type MultiplyReserve struct {
+	Reserve
+	Number int `json:"number"`
+}
 
+type DailyReportRequest struct {
+	Time string             `bson:"time" json:"time"`
+	Date primitive.DateTime `bson:"date" json:"date"`
+}
 
+type PaymentInfo struct {
+	Id                  string `bson:"_id" json:"id"`
+	Email               string `bson:"email" json:"email"`
+	CardType            string `bson:"cardType" json:"cardType"`
+	Bin                 string `bson:"bin" json:"bin"`
+	LastDigits          string `bson:"lastDigits" json:"lastDigits"`
+	DeferredCode        string `bson:"deferredCode" json:"deferredCode"`
+	Deferred            bool   `bson:"deferred" json:"deferred"`
+	CardBrandCode       string `bson:"cardBrandCode" json:"cardBrandCode"`
+	CardBrand           string `bson:"cardBrand" json:"cardBrand"`
+	Amount              int64  `bson:"amount" json:"amount"`
+	ClientTransactionID string `bson:"clientTransactionId" json:"clientTransactionId"`
+	PhoneNumber         string `bson:"phoneNumber" json:"phoneNumber"`
+	TransactionStatus   string `bson:"transactionStatus" json:"transactionStatus"`
+	AuthorizationCode   string `bson:"authorizationCode" json:"authorizationCode"`
+	TransactionID       int64  `bson:"transactionId" json:"transactionId"`
+	Document            string `bson:"document" json:"document"`
+	Currency            string `bson:"currency" json:"currency"`
+	StoreName           string `bson:"storeName" json:"storeName"`
+	Date                string `bson:"date" json:"date"`
+	RegionISO           string `bson:"regionIso" json:"regionIso"`
+	TransactionType     string `bson:"transactionType" json:"transactionType"`
+	Reference           string `bson:"reference" json:"reference"`
+}

@@ -6,45 +6,81 @@ import (
 	"fmt"
 	"gaviotaBackend/variables"
 	"go.mongodb.org/mongo-driver/bson"
-	"log"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"net/http"
 )
 
-func EditReserve (w http.ResponseWriter, r *http.Request){
-	var editReserve variables.Reserve
-	oldRoute := r.URL.Query()["oldRoute"][0]
+func EditReserveBase(w http.ResponseWriter, r *http.Request) {
+	typeEdit := r.URL.Query()["typeEdit"][0]
+	opts := options.FindOne().SetProjection(bson.D{{typeEdit, 1}})
+	var editReserves []variables.Reserve
+	var response variables.RequestResponse
 
-	err := json.NewDecoder(r.Body).Decode(&editReserve)
+	decoder := json.NewDecoder(r.Body)
+	_, err := decoder.Token()
 	if err != nil {
-		log.Fatal(err)
+		response.Error = "No se pudo decodificar reservas"
 	}
-	fmt.Println(editReserve.Date)
-	replace := bson.D{}
-	replace = append(replace, bson.E{"date", editReserve.Date})
-	if editReserve.Time != "" {
-		replace = append(replace, bson.E{"time", editReserve.Time})
+	for decoder.More() {
+		var reserve variables.Reserve
+		err = decoder.Decode(&reserve)
+		if err != nil {
+			response.Error = "No se pudo decodificar reservas"
+		}
+		editReserves = append(editReserves, reserve)
 	}
-	if editReserve.Ship != "" {
-		replace = append(replace, bson.E{"ship", editReserve.Ship})
-	}
-	if editReserve.Route != "" {
-		replace = append(replace, bson.E{"route", editReserve.Route})
-	}
-	fmt.Println(editReserve)
-	if editReserve.Id != "" {
-		//TODO implement  one edit
 
-
-	}else {
-		//TODO implemente all edit
-		if ((editReserve.Time == "AM" && editReserve.Route == "SC-SX") || (editReserve.Time == "PM" && editReserve.Route == "SX-SC"))&& editReserve.Ship == "Gaviota"{
-			_, err = variables.ReservesGaviotaCollection.UpdateMany(context.TODO(),bson.D{{"reserve",editReserve.Reserve},{"route",oldRoute}},bson.D{{"$set", replace}})
-			if err != nil {
-				log.Fatal(err)
+	for _, v := range editReserves {
+		result := variables.ReservesGaviotaCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}},opts)
+		var oldReserve variables.Reserve
+		var update bson.D
+		if result.Err() == mongo.ErrNoDocuments {
+			result = variables.ReservesOtherCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}},opts)
+			if result.Err() == mongo.ErrNoDocuments {
+				response.Error = "No se encontró reservas"
+			}else {
+				err = result.Decode(&oldReserve)
+				switch typeEdit {
+				case "isPayed":
+					update = append(update, bson.E{typeEdit,!oldReserve.IsPayed})
+				case "isConfirmed":
+					update = append(update, bson.E{typeEdit,!oldReserve.IsConfirmed})
+				case "isBlocked":
+					update = append(update, bson.E{typeEdit,!oldReserve.IsBlocked})
+				}
+				updated, err := variables.ReservesOtherCollection.UpdateOne(context.TODO(),bson.D{{"_id",v.Id}},bson.D{{"$set",update}})
+				if updated.MatchedCount == 0 && err != nil {
+					response.Error = "No se pudo editar reservas"
+				}else {
+					response.Succes = "Reservas editadas correctamente"
+				}
 			}
-			fmt.Println(editReserve.Time,":",editReserve.Route, ":", editReserve.Ship, "Status: OK")
 		}else {
-			//TODO get , delete , insert
+			err = result.Decode(&oldReserve)
+			if err != nil {
+				response.Error = "No se pudo decodificar reservas"
+			}else {
+				switch typeEdit {
+				case "isPayed":
+					update = append(update, bson.E{typeEdit,!oldReserve.IsPayed})
+				case "isConfirmed":
+					update = append(update, bson.E{typeEdit,!oldReserve.IsConfirmed})
+				case "isBlocked":
+					update = append(update, bson.E{typeEdit,!oldReserve.IsBlocked})
+				}
+				updated, err := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(),bson.D{{"_id",v.Id}},bson.D{{"$set",update}})
+				if updated.MatchedCount == 0 && err != nil {
+					response.Error = "No se pudo editar reservas"
+				}else {
+					response.Succes = "Reservas editadas correctamente"
+				}
+			}
 		}
 	}
+	if response.Succes != "" {
+		response.Error = ""
+	}
+	JSONresponse, _ := json.Marshal(response)
+	fmt.Fprintln(w, string(JSONresponse))
 }

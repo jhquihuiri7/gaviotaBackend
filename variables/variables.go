@@ -11,11 +11,7 @@ var FrequentsCollection *mongo.Collection
 var ReservesGaviotaCollection *mongo.Collection
 var ReservesOtherCollection *mongo.Collection
 var BinReservesCollection *mongo.Collection
+var PaymentsSystemHistory *mongo.Collection
 
 var PrivateKey *rsa.PrivateKey
 var PublicKey *rsa.PublicKey
-
-
-
-
-

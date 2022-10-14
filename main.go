@@ -6,21 +6,21 @@ import (
 	"gaviotaBackend/authentication"
 	"gaviotaBackend/dev"
 	"gaviotaBackend/middleware"
+	"gaviotaBackend/payments"
 	"gaviotaBackend/reports"
 	"gaviotaBackend/reserves"
 	"gaviotaBackend/utils"
 	"gaviotaBackend/variables"
 	"gaviotaBackend/ws"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"html/template"
-	"log"
 	"net/http"
 	"os"
 )
 
 var router *mux.Router
 var tmp *template.Template
+
 func init() {
 	database := DB.ConnectDB()
 	variables.UsersCollection = database.Collection("Users")
@@ -29,21 +29,18 @@ func init() {
 	variables.ReservesGaviotaCollection = database.Collection("ReservesGaviota")
 	variables.ReservesOtherCollection = database.Collection("ReservesOther")
 	variables.BinReservesCollection = database.Collection("BinReserves")
+	variables.PaymentsSystemHistory = database.Collection("PaymentsSystemHistory")
 	authentication.InitKeys()
-
-	tmp =  template.Must(template.ParseGlob("templates/*gohtml"))
+	ws.Connection = ws.WsConnection()
+	tmp = template.Must(template.ParseGlob("templates/*gohtml"))
 
 }
-var hub *ws.Hub
 func main() {
 	router = mux.NewRouter()
-
 
 	router.Use(middleware.CORS)
 	router.Use(middleware.JWT)
 	router.HandleFunc("/", Index).Methods("GET", "OPTIONS")
-	hub = ws.NewHub()
-	go hub.Run()
 
 	//user
 	router.HandleFunc("/api/addUser", utils.AddUser).Methods("POST", "OPTIONS")
@@ -56,8 +53,10 @@ func main() {
 	router.HandleFunc("/api/addReference", utils.AddReference).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/getAllReferences", utils.GetReference).Methods("GET", "OPTIONS")
 	router.HandleFunc("/api/deleteReference", utils.DeleteReference).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/restoreReserve", reserves.RestoreBin).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/editReference", utils.EditReference).Methods("POST", "OPTIONS")
-
+	router.HandleFunc("/api/getBin", reserves.GetBin).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/cleanBin", reserves.CleanBin).Methods("GET", "OPTIONS")
 	//login
 	router.HandleFunc("/api/login", authentication.Login).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/validateToken", authentication.ValidateToken).Methods("GET", "OPTIONS")
@@ -65,38 +64,37 @@ func main() {
 	//reserves
 	router.HandleFunc("/api/addReserves", reserves.AddReserves).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/getReservesDaily", reserves.GetReservesDaily).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/editReserve",reserves.EditReserve).Methods("POST","OPTIONS")
-	router.HandleFunc("/api/deleteReserve",reserves.DeleteReserve).Methods("POST","OPTIONS")
+	router.HandleFunc("/api/editReserveBase", reserves.EditReserveBase).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/deleteReserve", reserves.DeleteReserve).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/randomReserves", utils.GetRandomReserves).Methods("GET", "OPTIONS")
+
+	//reports
+	router.HandleFunc("/api/dailyReport", reports.PdfDaily).Methods("GET", "OPTIONS")
+
+	//payments
+	router.HandleFunc("/response", payments.PaymentResponse).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/getPaymentHistory", payments.GetPaymentHistory).Methods("GET", "OPTIONS")
 
 	//dev
 	router.HandleFunc("/admin/addAllUsers", dev.AddAllUsers).Methods("GET", "OPTIONS")
 	router.HandleFunc("/admin/addAllReferences", dev.AddAllReferences).Methods("GET", "OPTIONS")
 	router.HandleFunc("/admin/getCountries", utils.CuntriesDB).Methods("GET", "OPTIONS")
 	router.HandleFunc("/admin/downloadCountries", utils.DownloadCuntriesDB).Methods("GET", "OPTIONS")
-	router.HandleFunc("/admin/pdf", reports.PDF).Methods("GET", "OPTIONS")
+	//tickets
+	router.HandleFunc("/api/getPrinters", utils.GetPrinters).Methods("GET", "OPTIONS")
 
-	var upgrader = websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
-	router.HandleFunc("/ws",func (w http.ResponseWriter, r *http.Request) {
-		conn, err := upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		fmt.Println(conn.RemoteAddr())
-	}).Methods("GET","OPTIONS")
-	router.HandleFunc("/socket", Socket).Methods("GET","OPTIONS")
+	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		data := variables.Reserve{Id: "fsdfsd", User: "Fsdfsd", Ship: "Gaviota"}
+		var datas []interface{}
+		datas = append(datas, data)
+		ws.SendSocketMessage(datas)
+	}).Methods("GET", "OPTIONS")
 
 	port := os.Getenv("PORT")
 	http.ListenAndServe(":"+port, router)
 
 }
-func Socket (w http.ResponseWriter, r *http.Request){
-	tmp.Execute(w,nil)
-}
+
 func Index(w http.ResponseWriter, r *http.Request) {
 	router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()
@@ -104,10 +102,4 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, tpl, met)
 		return nil
 	})
-}
-
-func wsEndpoint (w http.ResponseWriter, r *http.Request){
-	fmt.Println("PASE A EJECUTAR EL ENDPOINT")
-	r.Header.Add("Sec-Websocket-Version","13")
-	ws.ServeWs(hub, w, r)
 }

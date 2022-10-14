@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func GetReservesDaily(w http.ResponseWriter, r *http.Request){
+func GetReservesDaily(w http.ResponseWriter, r *http.Request) {
 	var cursor *mongo.Cursor
 	var err error
 	var reserveDate variables.Reserve
@@ -29,7 +29,7 @@ func GetReservesDaily(w http.ResponseWriter, r *http.Request){
 		cursor, err = variables.ReservesGaviotaCollection.Find(context.TODO(), bson.M{"date": bson.M{
 			"$eq": reserveDate.Date,
 		}})
-	}else {
+	} else {
 		cursor, err = variables.ReservesOtherCollection.Find(context.TODO(), bson.M{"date": bson.M{
 			"$eq": reserveDate.Date,
 		}})
@@ -45,16 +45,16 @@ func GetReservesDaily(w http.ResponseWriter, r *http.Request){
 	}
 	if len(reserves) == 0 {
 		JSONresponse, err = json.Marshal(variables.RequestResponse{Error: "No reservas encontradas"})
-	}else{
+	} else {
 		JSONresponse, err = json.Marshal(reserves)
 	}
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Fprintln(w,string(JSONresponse))
+	fmt.Fprintln(w, string(JSONresponse))
 }
 
-func GetReservesRange (w http.ResponseWriter, r *http.Request){
+func GetReservesRange(w http.ResponseWriter, r *http.Request) {
 	cur, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.M{"date": bson.M{
 		"$lt": primitive.NewDateTimeFromTime(time.Now().AddDate(0, 0, -2)),
 		"$gt": primitive.NewDateTimeFromTime(time.Now().AddDate(0, 0, -10)),

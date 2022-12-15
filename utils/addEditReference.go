@@ -74,7 +74,8 @@ func EditReference(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = variables.ReferencesCollection.UpdateOne(context.TODO(), bson.D{{"_id", reference.Id}}, bson.D{{"$set", bson.D{{"name", reference.Name}}}})
+
+	_, err = variables.ReferencesCollection.UpdateOne(context.TODO(), bson.D{{"_id", reference.Id}}, bson.D{{"$set", bson.D{{"name", reference.Name},{"phone", reference.Phone}}}})
 	response := variables.RequestResponse{}
 	if err != nil {
 		log.Fatal(err)

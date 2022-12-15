@@ -80,6 +80,7 @@ func GetPaymentHistory(w http.ResponseWriter, r *http.Request) {
 	if len(paymentsHistory) > 0 {
 		JSONresponse, _ = json.Marshal(paymentsHistory)
 	} else {
+		response.Error = "No se encuentran pagos realizados"
 		JSONresponse, _ = json.Marshal(response)
 	}
 

@@ -54,6 +54,33 @@ func GetReservesDaily(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(JSONresponse))
 }
 
+func GetReservesExternal(w http.ResponseWriter, r *http.Request) {
+	var response variables.RequestResponse
+	var reserves []variables.Reserve
+	cursor, err := variables.ReservesExternalCollection.Find(context.TODO(), bson.D{})
+	if err != nil {
+		response.Error = "No hay ventas externas"
+	}
+	for cursor.Next(context.TODO()) {
+		var reserve variables.Reserve
+		err = cursor.Decode(&reserve)
+		if err != nil {
+			response.Error = "Problema al cargar ventas externas"
+		} else {
+			reserves = append(reserves, reserve)
+		}
+	}
+
+	var JSONresponse []byte
+	if len(reserves) > 0 {
+		JSONresponse, _ = json.Marshal(reserves)
+	} else {
+		response.Error = "No hay ventas externas"
+		JSONresponse, _ = json.Marshal(response)
+	}
+	fmt.Fprintln(w, string(JSONresponse))
+}
+
 func GetReservesRange(w http.ResponseWriter, r *http.Request) {
 	cur, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.M{"date": bson.M{
 		"$lt": primitive.NewDateTimeFromTime(time.Now().AddDate(0, 0, -2)),

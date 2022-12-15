@@ -8,6 +8,7 @@ import (
 )
 
 func EditReserveSingleGaviotaLogic(editReserve variables.Reserve, replace bson.D) string {
+
 	updatedCount, err := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(), bson.D{{"_id", editReserve.Id}}, bson.D{{"$set", replace}})
 	if err != nil {
 		log.Fatal(err)

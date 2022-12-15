@@ -35,8 +35,27 @@ func DeleteReserve(w http.ResponseWriter, r *http.Request) {
 		if result.Err() == mongo.ErrNoDocuments {
 			result = variables.ReservesOtherCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}})
 			if result.Err() == mongo.ErrNoDocuments {
-				response.Error = "No se encontró reserva"
-				continue
+				result = variables.ReservesExternalCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}})
+				if result.Err() == mongo.ErrNoDocuments {
+					response.Error = "No se encontró reserva"
+					continue
+				}else{
+					err = result.Decode(&binReserve)
+					if err != nil {
+						response.Error = "No fue posible decodificar reservas"
+					}else {
+						_, err =variables.BinReservesCollection.InsertOne(context.TODO(),binReserve)
+						if err != nil {
+							response.Error = "No es posible enviar reserva a papelera"
+						}
+					}
+					count, _ := variables.ReservesExternalCollection.DeleteOne(context.TODO(),bson.D{{"_id",v.Id}})
+					if count.DeletedCount == 0 {
+						response.Error = "No fue posible eliminar un reserva"
+					}else {
+						response.Error = ""
+					}
+				}
 			}else {
 				err = result.Decode(&binReserve)
 				if err != nil {

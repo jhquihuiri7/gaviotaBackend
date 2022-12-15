@@ -60,6 +60,18 @@ func RestoreBin(w http.ResponseWriter, r *http.Request) {
 					response.Succes = "Reserva restaurada correctamente"
 				}
 			}
+		} else if reserve.Ship == "Undefined"{
+			_, err = variables.ReservesExternalCollection.InsertOne(context.TODO(), reserve)
+			if err != nil {
+				response.Error = "No se pudo restaurar reserva"
+			} else {
+				_, err = variables.BinReservesCollection.DeleteOne(context.TODO(), bson.D{{"_id", reserve.Id}})
+				if err != nil {
+					response.Error = "No se pudo eliminar de papelera"
+				} else {
+					response.Succes = "Reserva restaurada correctamente"
+				}
+			}
 		} else {
 			_, err = variables.ReservesOtherCollection.InsertOne(context.TODO(), reserve)
 			if err != nil {

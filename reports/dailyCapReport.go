@@ -101,7 +101,7 @@ func PdfDaily(w http.ResponseWriter, r *http.Request) {
 			})
 		})
 	})
-	m.TableList([]string{"N°", "NOMBRES Y APELLIDOS", "PAIS", "CEDULA", "EDAD"}, GetDailyReportData(DailyRequest), props.TableList{
+	m.TableList([]string{"N°", "NOMBRES Y APELLIDOS", "PAIS", "CEDULA", "EDAD"}, [][]string{}, props.TableList{
 		HeaderProp: props.TableListContent{
 			Size:      9,
 			GridSizes: []uint{1, 4, 3, 3, 1},

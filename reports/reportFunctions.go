@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-func GetDailyReportData(DailyRequest variables.DailyReportRequest) [][]string {
+func GetDailyReportNODELETED(DailyRequest variables.DailyReportRequest) []variables.Reserve {
 	var Reserves []variables.Reserve
 	cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"time", DailyRequest.Time}, {"date", DailyRequest.Date}})
 	if err != nil {
@@ -24,20 +24,20 @@ func GetDailyReportData(DailyRequest variables.DailyReportRequest) [][]string {
 			Reserves = append(Reserves, reserve)
 		}
 	}
-	var CellValues [][]string
-	for i, v := range Reserves {
-		var cellTemp []string
-		cellTemp = append(cellTemp, fmt.Sprintf("%d", i+1))
-		cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Passenger))
-		cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Country))
-		cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Passport))
-		cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Age))
-		CellValues = append(CellValues, cellTemp)
-	}
-	return CellValues
+	//var CellValues [][]string
+	//for i, v := range Reserves {
+	//	var cellTemp []string
+	//	cellTemp = append(cellTemp, fmt.Sprintf("%d", i+1))
+	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Passenger))
+	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Country))
+	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Passport))
+	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Age))
+	//	CellValues = append(CellValues, cellTemp)
+	//}
+	return Reserves
 }
 func FormatDate(date primitive.DateTime) string {
-	day := date.Time().Day()
+	day := date.Time().UTC().Day()
 	month := ""
 	year := date.Time().Year()
 

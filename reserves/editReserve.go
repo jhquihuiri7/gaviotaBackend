@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
 	"net/http"
 )
 
@@ -167,28 +166,34 @@ func EditReserveExternalBase (w http.ResponseWriter, r *http.Request) {
 	var response variables.RequestResponse
 	param := r.URL.Query()
 	ship := param["ship"][0]
-	json.NewDecoder(r.Body).Decode(&ids)
+	err := json.NewDecoder(r.Body).Decode(&ids)
 	cursor, err := variables.ReservesExternalCollection.Find(context.TODO(),bson.D{})
-	if err != nil {
-		log.Fatal(err)
+	if err == mongo.ErrNoDocuments {
+		response.Error = "No se pudo encontrar reservas"
 	}
 	for cursor.Next(context.TODO()) {
 		var reserve variables.EditedReserve
-		err = cursor.Decode(&reserve)
+		err = cursor.Decode(&reserve.Reserve)
 		if err != nil {
-			log.Fatal(err)
+			response.Error = "No se pudo decodificar reservas"
 		}else{
 			for _, v := range ids.Ids {
-				if reserve.Id == v {
+				if reserve.Reserve.ReserveNumber == v {
 					reserve.Ship = ship
 					reserves = append(reserves, reserve)
+					response.Error = ""
+				}else{
+					response.Error = "No se encontró reserva para editar"
 				}
 			}
 		}
 	}
-	for _, v := range reserves {
-		response = EditExternal(v)
+	if response.Error == "" {
+		for _, v := range reserves {
+			response = EditExternal(v)
+		}
 	}
+
 	JSONresponse, _ := json.Marshal(response)
 	fmt.Fprintln(w,string(JSONresponse))
 }

@@ -107,6 +107,7 @@ func UpdateReserve (editedReserve variables.EditedReserve)bson.D{
 			{"paymentMethod",editedReserve.PaymentMethod},
 			{"paymentDate",editedReserve.PaymentDate},
 			{"phone",editedReserve.Phone},
+			{"registeredDate",editedReserve.RegisteredDate},
 		}},
 	}
 }
@@ -140,6 +141,7 @@ func ConvertReserve (multiplyReserve variables.EditedReserve)variables.Reserve{
 		Phone: multiplyReserve.Phone,
 		PaymentMethod: multiplyReserve.PaymentMethod,
 		PaymentDate: multiplyReserve.PaymentDate,
+		RegisteredDate: multiplyReserve.RegisteredDate,
 	}
 }
 func ValidateRouteChanges (route, ship, time string)error{

@@ -23,6 +23,9 @@ func ShareOtherReserves (w http.ResponseWriter, r *http.Request){
 		}
 		message += "%0A"
 	}
+	if len(message) < 25 {
+		message+="No hay reservas de otras lanchas para compartir información"
+	}
 	message = strings.ReplaceAll(message," ","%20")
 	response := variables.RequestResponse{Succes: message}
 	JSONresponse, _ := json.Marshal(response)

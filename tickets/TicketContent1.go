@@ -23,7 +23,7 @@ func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize
 		text = append(text, "Nacionalidad")
 		text = append(text, "Cédula")
 		text = append(text, "Vendedor:")
-		text = append(text, "VALOR:")
+		text = append(text, "TOTAL:")
 	}else {
 		text = append(text, "Travel date")
 		text = append(text, "Ferry")
@@ -33,7 +33,7 @@ func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize
 		text = append(text, "Nationality")
 		text = append(text, "Passport")
 		text = append(text, "Seller:")
-		text = append(text, "VALUE:")
+		text = append(text, "TOTAL:")
 	}
 
 	m.Row(2,func(){})

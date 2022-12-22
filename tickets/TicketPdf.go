@@ -150,10 +150,10 @@ func GenerateTicket2(w http.ResponseWriter, r *http.Request){
 
 	if lang == "es" {
 		text = append(text, "Vendedor:")
-		text = append(text, "VALOR:")
+		text = append(text, "TOTAL:")
 	}else {
 		text = append(text, "Seller:")
-		text = append(text, "VALUE:")
+		text = append(text, "TOTAL:")
 	}
 	m := pdf.NewMaroto(consts.Portrait, consts.A4)
 	m.SetPageMargins(15, 15, 15)

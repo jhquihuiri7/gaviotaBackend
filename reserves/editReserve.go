@@ -161,12 +161,24 @@ func EditReserveExternal (w http.ResponseWriter, r *http.Request){
 	fmt.Fprintln(w,string(JSONresponse))
 }
 func EditReserveExternalBase (w http.ResponseWriter, r *http.Request) {
-	var ids variables.Ids
+	var ids []variables.Ids
 	var reserves []variables.EditedReserve
 	var response variables.RequestResponse
 	param := r.URL.Query()
 	ship := param["ship"][0]
-	err := json.NewDecoder(r.Body).Decode(&ids)
+	user := param["user"][0]
+	decoder := json.NewDecoder(r.Body)
+	_, err := decoder.Token()
+	if err != nil {
+		response.Error = "No fue posible decodificar reservas"
+	}
+	for decoder.More() {
+		var id variables.Ids
+		err = decoder.Decode(&id)
+		if err != nil {
+			response.Error = "No fue posible decodificar todas las reservas"
+		}else {ids = append(ids, id)}
+	}
 	cursor, err := variables.ReservesExternalCollection.Find(context.TODO(),bson.D{})
 	if err == mongo.ErrNoDocuments {
 		response.Error = "No se pudo encontrar reservas"
@@ -174,16 +186,16 @@ func EditReserveExternalBase (w http.ResponseWriter, r *http.Request) {
 	for cursor.Next(context.TODO()) {
 		var reserve variables.EditedReserve
 		err = cursor.Decode(&reserve.Reserve)
+		reserve.Reserve.User = user
+		reserve.Reserve.Reference = user
 		if err != nil {
 			response.Error = "No se pudo decodificar reservas"
 		}else{
-			for _, v := range ids.Ids {
-				if reserve.Reserve.ReserveNumber == v {
+			for _, v := range ids {
+				if reserve.Reserve.Id == v.Id {
 					reserve.Ship = ship
 					reserves = append(reserves, reserve)
-					response.Error = ""
-				}else{
-					response.Error = "No se encontró reserva para editar"
+
 				}
 			}
 		}

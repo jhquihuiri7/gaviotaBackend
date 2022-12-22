@@ -99,7 +99,7 @@ type EditedReserve struct {
 	Collection string `json:"collection"`
 }
 type Ids struct {
-	Ids []string `json:"ids"`
+	Id string `json:"id"`
 }
 type DailyReportRequest struct {
 	Time string             `bson:"time" json:"time"`

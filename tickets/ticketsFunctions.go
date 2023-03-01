@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
+	"sort"
 	"strings"
 )
 
@@ -67,6 +68,9 @@ func GetRoutes(reserves []variables.Reserve)[]variables.TicketRoute{
 			}
 		}
 	}
+	sort.Slice(ticketRoutes,func(i, j int)bool{
+		return ticketRoutes[i].Date < ticketRoutes[j].Date
+	})
 	return  ticketRoutes
 }
 func GetPassenger(reserves []variables.Reserve)[]variables.TicketPassenger{

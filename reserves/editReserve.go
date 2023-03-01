@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"net/http"
 )
 
@@ -32,50 +33,50 @@ func EditReserveBase(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range editReserves {
-		result := variables.ReservesGaviotaCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}},opts)
+		result := variables.ReservesGaviotaCollection.FindOne(context.TODO(), bson.D{{"_id", v.Id}}, opts)
 		var oldReserve variables.Reserve
 		var update bson.D
 		if result.Err() == mongo.ErrNoDocuments {
-			result = variables.ReservesOtherCollection.FindOne(context.TODO(),bson.D{{"_id",v.Id}},opts)
+			result = variables.ReservesOtherCollection.FindOne(context.TODO(), bson.D{{"_id", v.Id}}, opts)
 			if result.Err() == mongo.ErrNoDocuments {
 				response.Error = "No se encontró reservas"
-			}else {
+			} else {
 				err = result.Decode(&oldReserve)
-				switch typeEdit {
-				case "isPayed":
-					update = append(update, bson.E{typeEdit,!oldReserve.IsPayed})
-					if oldReserve.IsPayed == false {
-						update = append(update, bson.E{"isConfirmed",!oldReserve.IsPayed})
-
-					}
-				case "isConfirmed":
-					update = append(update, bson.E{typeEdit,!oldReserve.IsConfirmed})
-				}
-				updated, err := variables.ReservesOtherCollection.UpdateOne(context.TODO(),bson.D{{"_id",v.Id}},bson.D{{"$set",update}})
-				if updated.MatchedCount == 0 && err != nil {
-					response.Error = "No se pudo editar reservas"
-				}else {
-					response.Succes = "Reservas editadas correctamente"
-				}
-			}
-		}else {
-			err = result.Decode(&oldReserve)
-			if err != nil {
-				response.Error = "No se pudo decodificar reservas"
-			}else {
 				switch typeEdit {
 				case "isPayed":
 					update = append(update, bson.E{typeEdit, !oldReserve.IsPayed})
 					if oldReserve.IsPayed == false {
-						update = append(update, bson.E{"isConfirmed",!oldReserve.IsPayed})
+						update = append(update, bson.E{"isConfirmed", !oldReserve.IsPayed})
+
 					}
-					case "isConfirmed":
+				case "isConfirmed":
 					update = append(update, bson.E{typeEdit, !oldReserve.IsConfirmed})
 				}
-				updated, err := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(),bson.D{{"_id",v.Id}},bson.D{{"$set",update}})
+				updated, err := variables.ReservesOtherCollection.UpdateOne(context.TODO(), bson.D{{"_id", v.Id}}, bson.D{{"$set", update}})
 				if updated.MatchedCount == 0 && err != nil {
 					response.Error = "No se pudo editar reservas"
-				}else {
+				} else {
+					response.Succes = "Reservas editadas correctamente"
+				}
+			}
+		} else {
+			err = result.Decode(&oldReserve)
+			if err != nil {
+				response.Error = "No se pudo decodificar reservas"
+			} else {
+				switch typeEdit {
+				case "isPayed":
+					update = append(update, bson.E{typeEdit, !oldReserve.IsPayed})
+					if oldReserve.IsPayed == false {
+						update = append(update, bson.E{"isConfirmed", !oldReserve.IsPayed})
+					}
+				case "isConfirmed":
+					update = append(update, bson.E{typeEdit, !oldReserve.IsConfirmed})
+				}
+				updated, err := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(), bson.D{{"_id", v.Id}}, bson.D{{"$set", update}})
+				if updated.MatchedCount == 0 && err != nil {
+					response.Error = "No se pudo editar reservas"
+				} else {
 					response.Succes = "Reservas editadas correctamente"
 				}
 			}
@@ -87,7 +88,7 @@ func EditReserveBase(w http.ResponseWriter, r *http.Request) {
 	JSONresponse, _ := json.Marshal(response)
 	fmt.Fprintln(w, string(JSONresponse))
 }
-func EditReserveSingle (w http.ResponseWriter, r *http.Request){
+func EditReserveSingle(w http.ResponseWriter, r *http.Request) {
 	var reserve variables.EditedReserve
 	var response variables.RequestResponse
 	err := json.NewDecoder(r.Body).Decode(&reserve)
@@ -97,59 +98,59 @@ func EditReserveSingle (w http.ResponseWriter, r *http.Request){
 	var newCollection string
 	if reserve.Ship == "Gaviota" {
 		newCollection = reserve.Ship
-	}else{
+	} else {
 		newCollection = "Other"
 	}
 	if reserve.Collection == newCollection {
 		if reserve.Ship == "Gaviota" {
-			result, _ := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(),bson.D{{"_id",reserve.Id}},UpdateReserve(reserve))
+			result, _ := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(), bson.D{{"_id", reserve.Id}}, UpdateReserve(reserve))
 
 			if result.ModifiedCount == 0 {
 				response.Error = "No se puedo actualizar reserva"
-			}else {
+			} else {
 				response.Succes = "Reserva modificada correctamente"
 			}
-		}else {
-			result, _ :=variables.ReservesOtherCollection.UpdateOne(context.TODO(),bson.D{{"_id",reserve.Id}},UpdateReserve(reserve))
+		} else {
+			result, _ := variables.ReservesOtherCollection.UpdateOne(context.TODO(), bson.D{{"_id", reserve.Id}}, UpdateReserve(reserve))
 			if result.ModifiedCount == 0 {
 				response.Error = "No se puedo actualizar reserva"
-			}else{
+			} else {
 				response.Succes = "Reserva modificada correctamente"
 			}
 		}
-	}else {
+	} else {
 		//TODO implement structural reserve
 		//encuentra inserta y elimina
 		if reserve.Collection == "Gaviota" {
-			_, err = variables.ReservesOtherCollection.InsertOne(context.TODO(),ConvertReserve(reserve))
+			_, err = variables.ReservesOtherCollection.InsertOne(context.TODO(), ConvertReserve(reserve))
 			if err != nil {
 				response.Error = "No se puedo actualizar reserva"
-			}else {
-				result, err := variables.ReservesGaviotaCollection.DeleteOne(context.TODO(), bson.D{{"_id",reserve.Id}})
-				if err != nil && result.DeletedCount == 0{
+			} else {
+				result, err := variables.ReservesGaviotaCollection.DeleteOne(context.TODO(), bson.D{{"_id", reserve.Id}})
+				if err != nil && result.DeletedCount == 0 {
 					response.Error = "No se puedo actualizar reserva"
-				}else{
+				} else {
 					response.Succes = "Reserva modificada correctamente"
 				}
 			}
-		}else{
-			_, err = variables.ReservesGaviotaCollection.InsertOne(context.TODO(),ConvertReserve(reserve))
+		} else {
+			_, err = variables.ReservesGaviotaCollection.InsertOne(context.TODO(), ConvertReserve(reserve))
 			if err != nil {
 				response.Error = "No se puedo actualizar reserva"
-			}else {
-				result, err := variables.ReservesOtherCollection.DeleteOne(context.TODO(), bson.D{{"_id",reserve.Id}})
-				if err != nil && result.DeletedCount == 0{
+			} else {
+				result, err := variables.ReservesOtherCollection.DeleteOne(context.TODO(), bson.D{{"_id", reserve.Id}})
+				if err != nil && result.DeletedCount == 0 {
 					response.Error = "No se puedo actualizar reserva"
-				}else{
+				} else {
 					response.Succes = "Reserva modificada correctamente"
 				}
 			}
 		}
 	}
 	JSONresponse, _ := json.Marshal(response)
-	fmt.Fprintln(w,string(JSONresponse))
+	fmt.Fprintln(w, string(JSONresponse))
 }
-func EditReserveExternal (w http.ResponseWriter, r *http.Request){
+func EditReserveExternal(w http.ResponseWriter, r *http.Request) {
 	var reserve variables.EditedReserve
 	var response variables.RequestResponse
 	err := json.NewDecoder(r.Body).Decode(&reserve)
@@ -158,9 +159,9 @@ func EditReserveExternal (w http.ResponseWriter, r *http.Request){
 	}
 	response = EditExternal(reserve)
 	JSONresponse, _ := json.Marshal(response)
-	fmt.Fprintln(w,string(JSONresponse))
+	fmt.Fprintln(w, string(JSONresponse))
 }
-func EditReserveExternalBase (w http.ResponseWriter, r *http.Request) {
+func EditReserveExternalBase(w http.ResponseWriter, r *http.Request) {
 	var ids []variables.Ids
 	var reserves []variables.EditedReserve
 	var response variables.RequestResponse
@@ -177,9 +178,11 @@ func EditReserveExternalBase (w http.ResponseWriter, r *http.Request) {
 		err = decoder.Decode(&id)
 		if err != nil {
 			response.Error = "No fue posible decodificar todas las reservas"
-		}else {ids = append(ids, id)}
+		} else {
+			ids = append(ids, id)
+		}
 	}
-	cursor, err := variables.ReservesExternalCollection.Find(context.TODO(),bson.D{})
+	cursor, err := variables.ReservesExternalCollection.Find(context.TODO(), bson.D{})
 	if err == mongo.ErrNoDocuments {
 		response.Error = "No se pudo encontrar reservas"
 	}
@@ -190,7 +193,7 @@ func EditReserveExternalBase (w http.ResponseWriter, r *http.Request) {
 		reserve.Reserve.Reference = user
 		if err != nil {
 			response.Error = "No se pudo decodificar reservas"
-		}else{
+		} else {
 			for _, v := range ids {
 				if reserve.Reserve.Id == v.Id {
 					reserve.Ship = ship
@@ -207,41 +210,66 @@ func EditReserveExternalBase (w http.ResponseWriter, r *http.Request) {
 	}
 
 	JSONresponse, _ := json.Marshal(response)
-	fmt.Fprintln(w,string(JSONresponse))
+	fmt.Fprintln(w, string(JSONresponse))
 }
-func EditExternal (reserve variables.EditedReserve) variables.RequestResponse{
+func EditExternal(reserve variables.EditedReserve) variables.RequestResponse {
 	var response variables.RequestResponse
 	if reserve.Ship == "Undefined" {
-		result, _ := variables.ReservesExternalCollection.UpdateOne(context.TODO(),bson.D{{"_id",reserve.Id}},UpdateReserve(reserve))
+		result, _ := variables.ReservesExternalCollection.UpdateOne(context.TODO(), bson.D{{"_id", reserve.Id}}, UpdateReserve(reserve))
 		if result.ModifiedCount == 0 {
 			response.Error = "No se puedo actualizar reserva"
-		}else {
+		} else {
 			response.Succes = "Reserva modificada correctamente"
 		}
-	}else if reserve.Ship == "Gaviota" {
-		_, err := variables.ReservesGaviotaCollection.InsertOne(context.TODO(),ConvertReserve(reserve))
+	} else if reserve.Ship == "Gaviota" {
+		_, err := variables.ReservesGaviotaCollection.InsertOne(context.TODO(), ConvertReserve(reserve))
 		if err != nil {
 			response.Error = "No se puedo actualizar reserva"
-		}else {
-			result, err := variables.ReservesExternalCollection.DeleteOne(context.TODO(), bson.D{{"_id",reserve.Id}})
-			if err != nil && result.DeletedCount == 0{
+		} else {
+			result, err := variables.ReservesExternalCollection.DeleteOne(context.TODO(), bson.D{{"_id", reserve.Id}})
+			if err != nil && result.DeletedCount == 0 {
 				response.Error = "No se puedo actualizar reserva"
-			}else{
+			} else {
 				response.Succes = "Reserva modificada correctamente"
 			}
 		}
-	}else {
-		_, err := variables.ReservesOtherCollection.InsertOne(context.TODO(),ConvertReserve(reserve))
+	} else {
+		_, err := variables.ReservesOtherCollection.InsertOne(context.TODO(), ConvertReserve(reserve))
 		if err != nil {
 			response.Error = "No se puedo actualizar reserva"
-		}else {
-			result, err := variables.ReservesExternalCollection.DeleteOne(context.TODO(), bson.D{{"_id",reserve.Id}})
-			if err != nil && result.DeletedCount == 0{
+		} else {
+			result, err := variables.ReservesExternalCollection.DeleteOne(context.TODO(), bson.D{{"_id", reserve.Id}})
+			if err != nil && result.DeletedCount == 0 {
 				response.Error = "No se puedo actualizar reserva"
-			}else{
+			} else {
 				response.Succes = "Reserva modificada correctamente"
 			}
 		}
 	}
-	return  response
+	return response
+}
+
+func EditReservePrice(w http.ResponseWriter, r *http.Request) {
+	var reserve variables.Reserve
+	var response variables.RequestResponse
+	err := json.NewDecoder(r.Body).Decode(&reserve)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	updatedCount, err := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(), bson.D{{"_id", reserve.Id}}, bson.D{{"$set", bson.D{{"price", reserve.Price}}}})
+	if updatedCount.ModifiedCount == 0 {
+		response.Error = "No se pudo actualizar precio"
+		updatedCount, err = variables.ReservesOtherCollection.UpdateOne(context.TODO(), bson.D{{"_id", reserve.Id}}, bson.D{{"$set", bson.D{{"price", reserve.Price}}}})
+		if updatedCount.ModifiedCount > 0 {
+			response.Succes = "Precio actualizado correctamente"
+			response.Error = ""
+		} else {
+			response.Error = "No se pudo actualizar precio"
+		}
+	} else {
+		response.Succes = "Precio actualizado correctamente"
+	}
+	JSONresponse, err := json.Marshal(response)
+	fmt.Fprintln(w, string(JSONresponse))
 }

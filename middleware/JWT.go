@@ -10,7 +10,7 @@ import (
 
 func JWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.String() != "/api/login" && r.URL.String() != "/api/validateToken" && r.URL.String() != "/api/addReservesExternal" && strings.Contains(r.URL.String(), "/api/dailyReport") != true && strings.Contains(r.URL.String(), "/response") != true && r.URL.String() != "/api/generateLink" && strings.Contains(r.URL.String(), "/api/validateLink") != true && strings.Contains(r.URL.String(), "/api/generateTicket") != true && strings.Contains(r.URL.String(), "/api/ShareOtherReserves") != true{
+		if r.URL.String() != "/api/login" && r.URL.String() != "/api/validateToken" && r.URL.String() != "/api/addReservesExternal" && r.URL.String() != "/admin/addPrices" && strings.Contains(r.URL.String(), "/api/dailyReport") != true && strings.Contains(r.URL.String(), "/response") != true && r.URL.String() != "/api/generateLink" && strings.Contains(r.URL.String(), "/api/validateLink") != true && strings.Contains(r.URL.String(), "/api/generateTicket") != true && strings.Contains(r.URL.String(), "/api/GaviotaTicketFerry") != true && strings.Contains(r.URL.String(), "/api/ShareOtherReserves") != true {
 			token, err := request.ParseFromRequest(r, request.OAuth2Extractor, func(token *jwt.Token) (interface{}, error) {
 				return variables.PublicKey, nil
 			}, request.WithClaims(&variables.Claim{}))

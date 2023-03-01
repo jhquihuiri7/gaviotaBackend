@@ -12,13 +12,24 @@ import (
 	"time"
 )
 
-func DailyExcelReport (w http.ResponseWriter, r *http.Request)  {
+func DailyExcelReport(w http.ResponseWriter, r *http.Request) {
 	var DailyRequest variables.DailyReportRequest
 	var response variables.RequestResponse
 	param := r.URL.Query()
 	t := param["time"][0]
+
 	date := strings.ReplaceAll(param["date"][0], " ", "+")
-	nd, _ := time.Parse("2006-01-02", date)
+	date = strings.ReplaceAll(param["date"][0], "/", "-")
+	if len(date) == 9 {
+		date = "0" + date
+	}
+	if len(date) == 8 {
+		date = "0" + date[:2] + "0" + date[2:]
+	}
+
+	nd, _ := time.Parse("01-02-2006", date)
+	fmt.Println(date)
+	fmt.Println(nd)
 	dateTime := primitive.NewDateTimeFromTime(nd)
 	DailyRequest.Time = t
 	DailyRequest.Date = dateTime
@@ -26,7 +37,7 @@ func DailyExcelReport (w http.ResponseWriter, r *http.Request)  {
 	sheet := "Sheet1"
 	f := excelize.NewFile()
 	f.SetPageLayout(sheet, excelize.PageLayoutOrientation("portrait"))
-	f.SetPageMargins(sheet,excelize.PageMarginBottom(0),excelize.PageMarginFooter(0),excelize.PageMarginHeader(0),excelize.PageMarginLeft(0.9),excelize.PageMarginRight(0.3),excelize.PageMarginTop(0.4))
+	f.SetPageMargins(sheet, excelize.PageMarginBottom(0), excelize.PageMarginFooter(0), excelize.PageMarginHeader(0), excelize.PageMarginLeft(0.9), excelize.PageMarginRight(0.3), excelize.PageMarginTop(0.4))
 	f.SetColWidth(sheet, "A", "Z", 4.5)
 	f.SetColWidth(sheet, "A", "C", 3.5)
 	f.SetColWidth(sheet, "D", "D", 7.5)
@@ -37,23 +48,23 @@ func DailyExcelReport (w http.ResponseWriter, r *http.Request)  {
 	f.SetColWidth(sheet, "U", "U", 2.5)
 	f.SetColWidth(sheet, "W", "W", 3)
 
-	for i:=1; i<=65;i++{
+	for i := 1; i <= 65; i++ {
 		f.SetRowHeight("Sheet1", i, 12)
 		if i == 2 {
-			f.SetRowHeight("Sheet1",i,24)
+			f.SetRowHeight("Sheet1", i, 24)
 		}
 	}
 
 	//f.SetRowHeight("Sheet1", 7, 22)
 	HeaderSection(f)
-	InformationSection(f,sheet, nd.String(), t)
-	ContentSection(f,sheet,reserves)
-	FooterSection(13+len(reserves),sheet,f)
+	InformationSection(f, sheet, nd.String(), t)
+	ContentSection(f, sheet, reserves)
+	FooterSection(13+len(reserves), sheet, f)
 
 	//file, err := ioutil.TempFile(os.TempDir(),fmt.Sprintf("ReporteDiario %s-*.xlsx",nd.String()[:10]))
 	//defer os.Remove(file.Name())
 
-	res := storage.UploadAsset(variables.CloudinaryStorage,f,nd)
+	res := storage.UploadAsset(variables.CloudinaryStorage, f, nd)
 	//m := gomail.NewMessage()
 	//m.SetHeader("From", "jhonatan.quihuiri@gmail.com")
 	////m.SetHeader("To", "marthacasti2103@gmail.com","renanerling@gmail.com","morycat1995@gmail.com","gaviota.ferry@gmail.com")
@@ -69,15 +80,12 @@ func DailyExcelReport (w http.ResponseWriter, r *http.Request)  {
 	//}else {
 	//	response.Succes = "Reporte enviado al correo electrónico"
 	//}
-	err := f.SaveAs("Geporte.xlsx")
-	if err != nil {
-		fmt.Println(err)
-	}
-	if strings.Contains(res,"clou"){
-		response.Succes = fmt.Sprintf("https://view.officeapps.live.com/op/view.aspx?src=%s&wdOrigin=BROWSELINK",res)
-	}else {
+
+	if strings.Contains(res, "clou") {
+		response.Succes = fmt.Sprintf("https://view.officeapps.live.com/op/view.aspx?src=%s&wdOrigin=BROWSELINK", res)
+	} else {
 		response.Error = res
 	}
 	JSONresponse, _ := json.Marshal(response)
-	fmt.Fprintln(w,string(JSONresponse))
+	fmt.Fprintln(w, string(JSONresponse))
 }

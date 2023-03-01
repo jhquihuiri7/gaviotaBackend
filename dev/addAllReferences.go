@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"gaviotaBackend/utils"
 	"gaviotaBackend/variables"
+	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"net/http"
 	"os"
@@ -32,5 +33,12 @@ func AddAllReferences(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+}
+func InsertPrices(w http.ResponseWriter, r *http.Request) {
+	update := bson.D{{"$set", bson.D{{"olderPrice", 20}}}}
+	_, err := variables.ReferencesCollection.UpdateMany(context.TODO(), bson.D{}, update)
+	if err != nil {
+		log.Fatal(err)
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-func SaleReport (w http.ResponseWriter, r *http.Request){
+func SaleReport(w http.ResponseWriter, r *http.Request) {
 	var filter variables.ReportSalesFilter
 	var reservesTemp []variables.Reserve
 	var salesSliceReport []variables.ReportSalesData
@@ -22,15 +22,15 @@ func SaleReport (w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		response.Error = "No es posible decodificar reservas"
 	}
-	opts := options.Find().SetProjection(bson.D{{"passenger", 1},{"age", 1}, {"reference", 1}, {"date", 1},{"time", 1},{"price", 1},{"route", 1},{"isPayed", 1},{"ship", 1}})
+	//opts := options.Find().SetProjection(bson.D{{"passenger", 1},{"age", 1}, {"reference", 1}, {"date", 1},{"time", 1},{"price", 1},{"route", 1},{"isPayed", 1},{"ship", 1}})
 	var cursor *mongo.Cursor
 	if filter.Collection == "Gaviota" {
-		cursor , err = variables.ReservesGaviotaCollection.Find(context.TODO(),bson.D{{"date",bson.D{{"$gte", filter.InitDate},{"$lte", filter.FinalDate}}},{"isPayed",false}},opts)
-	}else {
-		cursor , err = variables.ReservesOtherCollection.Find(context.TODO(),bson.D{{"date",bson.D{{"$gte", filter.InitDate},{"$lte", filter.FinalDate}}}},opts)
+		cursor, err = variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"date", bson.D{{"$gte", filter.InitDate}, {"$lte", filter.FinalDate}}}, {"isPayed", false}})
+	} else {
+		cursor, err = variables.ReservesOtherCollection.Find(context.TODO(), bson.D{{"date", bson.D{{"$gte", filter.InitDate}, {"$lte", filter.FinalDate}}}})
 	}
 
-	if  err != nil  && cursor.Err() != nil{
+	if err != nil && cursor.Err() != nil {
 		response.Error = "No es posible encontrar reservas"
 	}
 	values, _ := cursor.Current.Values()
@@ -45,7 +45,7 @@ func SaleReport (w http.ResponseWriter, r *http.Request){
 		}
 		if filter.Collection == "Gaviota" {
 			filterMap[reserve.Reference] += reserve.Price
-		}else {
+		} else {
 			filterMap[reserve.Ship] += reserve.Price
 		}
 		reservesTemp = append(reservesTemp, reserve)
@@ -58,15 +58,15 @@ func SaleReport (w http.ResponseWriter, r *http.Request){
 		for _, re := range reservesTemp {
 			if filter.Collection == "Gaviota" {
 				if i == re.Reference {
-					reserves =append(reserves, re)
+					reserves = append(reserves, re)
 					saleReportData.Total += re.Price
 				}
-			}else {
+			} else {
 				if i == re.Ship {
-					reserves =append(reserves, re)
+					reserves = append(reserves, re)
 					if re.IsPayed {
 						saleReportData.Payed += re.Price
-					}else{
+					} else {
 						saleReportData.Total += re.Price
 					}
 				}
@@ -79,13 +79,13 @@ func SaleReport (w http.ResponseWriter, r *http.Request){
 	var JSONresponse []byte
 	if len(salesSliceReport) != 0 {
 		JSONresponse, _ = json.Marshal(salesSliceReport)
-	}else {
+	} else {
 		JSONresponse, _ = json.Marshal(response)
 	}
-	fmt.Fprintln(w,string(JSONresponse))
+	fmt.Fprintln(w, string(JSONresponse))
 }
 
-func SaleReportOther (w http.ResponseWriter, r *http.Request){
+func SaleReportOther(w http.ResponseWriter, r *http.Request) {
 	var filter variables.ReportSalesFilter
 	var reservesTemp []variables.Reserve
 	var salesSliceReport []variables.ReportSalesData
@@ -96,10 +96,10 @@ func SaleReportOther (w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		response.Error = "No es posible decodificar reservas"
 	}
-	opts := options.Find().SetProjection(bson.D{{"passenger", 1}, {"reference", 1}, {"date", 1},{"time", 1},{"price", 1},{"route", 1},{"isPayed",1},{"ship",1}})
-	cursor , err := variables.ReservesOtherCollection.Find(context.TODO(),bson.D{{"date",bson.D{{"$gte", filter.InitDate},{"$lte", filter.FinalDate}}}},opts)
+	opts := options.Find().SetProjection(bson.D{{"passenger", 1}, {"reference", 1}, {"date", 1}, {"time", 1}, {"price", 1}, {"route", 1}, {"isPayed", 1}, {"ship", 1}})
+	cursor, err := variables.ReservesOtherCollection.Find(context.TODO(), bson.D{{"date", bson.D{{"$gte", filter.InitDate}, {"$lte", filter.FinalDate}}}}, opts)
 
-	if  err != nil  && cursor.Err() != nil{
+	if err != nil && cursor.Err() != nil {
 		response.Error = "No es posible encontrar reservas"
 	}
 	values, _ := cursor.Current.Values()
@@ -130,7 +130,7 @@ func SaleReportOther (w http.ResponseWriter, r *http.Request){
 		var reserves []variables.Reserve
 		for _, re := range reservesTemp {
 			if i == re.Reference {
-				reserves =append(reserves, re)
+				reserves = append(reserves, re)
 			}
 		}
 		saleReportData.Reserves = reserves
@@ -139,10 +139,8 @@ func SaleReportOther (w http.ResponseWriter, r *http.Request){
 	var JSONresponse []byte
 	if len(salesSliceReport) != 0 {
 		JSONresponse, _ = json.Marshal(salesSliceReport)
-	}else {
+	} else {
 		JSONresponse, _ = json.Marshal(response)
 	}
-	fmt.Fprintln(w,string(JSONresponse))
+	fmt.Fprintln(w, string(JSONresponse))
 }
-
-

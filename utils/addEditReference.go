@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func AddReference(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +38,7 @@ func GetReference(w http.ResponseWriter, r *http.Request) {
 	for cursor.Next(context.TODO()) {
 		i := variables.ReferencesData{}
 		cursor.Decode(&i)
+		i.Name = strings.ToUpper(i.Name)
 		references = append(references, i)
 	}
 	JSONreferences, err := json.Marshal(references)
@@ -75,10 +77,9 @@ func EditReference(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	_, err = variables.ReferencesCollection.UpdateOne(context.TODO(), bson.D{{"_id", reference.Id}}, bson.D{{"$set", bson.D{{"name", reference.Name},{"phone", reference.Phone}}}})
+	_, err = variables.ReferencesCollection.UpdateOne(context.TODO(), bson.D{{"_id", reference.Id}}, bson.D{{"$set", bson.D{{"name", reference.Name}, {"phone", reference.Phone}, {"completePrice", reference.CompletePrice}, {"reducedPrice", reference.ReducedPrice}, {"olderPrice", reference.OlderPrice}}}})
 	response := variables.RequestResponse{}
 	if err != nil {
-		log.Fatal(err)
 		response.Error = "No se pudo editar referencia"
 	} else {
 		response.Succes = "Referencia editada correctamente"

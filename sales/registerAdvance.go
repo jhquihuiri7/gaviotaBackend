@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func RegisterAdvance(w http.ResponseWriter, r *http.Request){
+func RegisterAdvance(w http.ResponseWriter, r *http.Request) {
 	var advanceDataRequest variables.AdvanceDataRequest
 	var advanceData variables.AdvanceData
 	var response variables.RequestResponse
@@ -24,31 +24,30 @@ func RegisterAdvance(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		log.Fatal(err)
 		response.Error = "No se puede decodificar pago"
-	}else {
+	} else {
 		advanceData.PaymentMethod = advanceDataRequest.PaymentMethod
 		advanceData.Advance = advanceDataRequest.Advance
 		advanceData.User = advanceDataRequest.User
 		advanceData.Date = primitive.NewDateTimeFromTime(time.Now().Local())
 
-
 		var referencePaymentHistory variables.ReferencePaymentHistory
-		result := variables.PaymentsReferenceHistory.FindOne(context.TODO(),bson.D{{"reference",advanceDataRequest.ReferenceName}})
+		result := variables.PaymentsReferenceHistory.FindOne(context.TODO(), bson.D{{"reference", advanceDataRequest.ReferenceName}})
 		if result.Err() == mongo.ErrNoDocuments && result.Err() != nil {
 			advanceData.Total = advanceData.Advance
-		}else {
+		} else {
 			result.Decode(&referencePaymentHistory)
-			if len(referencePaymentHistory.History) >1 {
+			if len(referencePaymentHistory.History) > 1 {
 				sort.Slice(referencePaymentHistory.History, func(i, j int) bool {
 					return referencePaymentHistory.History[i].Date > referencePaymentHistory.History[j].Date
 				})
 			}
-				advanceData.Total = advanceData.Advance + referencePaymentHistory.History[0].Pending
+			advanceData.Total = advanceData.Advance + referencePaymentHistory.History[0].Pending
 		}
 
 		advanceData.Pending = advanceData.Total
 	}
 
-	cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(),bson.D{{"reference",advanceDataRequest.ReferenceName},{"isPayed",false}})
+	cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"reference", advanceDataRequest.ReferenceName}, {"isPayed", false}})
 	if err != nil {
 		log.Fatal(err)
 		response.Error = "No se encontraron reservas para el pago"
@@ -69,37 +68,35 @@ func RegisterAdvance(w http.ResponseWriter, r *http.Request){
 	pursue := ""
 	for _, v := range reserves {
 		if pursue == "" {
-			if float64(advanceData.Pending) / float64(v.Price) >= 1 {
-				result, err := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(),bson.D{{"_id",v.Id}},bson.D{{"$set",bson.D{{"isPayed",true}}}})
+			if float64(advanceData.Pending)/float64(v.Price) >= 1 {
+				result, err := variables.ReservesGaviotaCollection.UpdateOne(context.TODO(), bson.D{{"_id", v.Id}}, bson.D{{"$set", bson.D{{"isPayed", true}}}})
 				if err != nil {
 					log.Fatal(err)
 				}
 				advanceData.PayedIds = append(advanceData.PayedIds, v.Id)
 				fmt.Println(result.ModifiedCount)
-				advanceData.Pending-=v.Price
-			}else {
+				advanceData.Pending -= v.Price
+			} else {
 				advanceData.Pending = advanceData.Pending % v.Price
 				advanceData.Balance += v.Price
 				pursue = "balance"
 			}
-		}else {
+		} else {
 			advanceData.Balance += v.Price
 		}
 	}
 	referencePaymentHistory := variables.ReferencePaymentHistory{
-		Id: uuid.NewV4().String(),
+		Id:        uuid.NewV4().String(),
 		Reference: advanceDataRequest.ReferenceName,
-		History: []variables.AdvanceData{advanceData},
+		History:   []variables.AdvanceData{advanceData},
 	}
 	opts := options.Update().SetUpsert(true)
-	variables.PaymentsReferenceHistory.UpdateOne(context.TODO(),bson.D{{"reference",referencePaymentHistory.Reference}},bson.D{{"$push",bson.D{{"history",advanceData}}}},opts)
-
-	var JSONresponse []byte
-	if response.Error == "" {
-		JSONresponse, _ = json.Marshal(advanceData)
-	}else {
-		JSONresponse, _ = json.Marshal(response)
+	result, err := variables.PaymentsReferenceHistory.UpdateOne(context.TODO(), bson.D{{"reference", referencePaymentHistory.Reference}}, bson.D{{"$push", bson.D{{"history", advanceData}}}}, opts)
+	if result.ModifiedCount > 0 {
+		response.Error = ""
+		response.Succes = "Pago registrado correctamente"
 	}
-
-	fmt.Fprintln(w,string(JSONresponse))
+	var JSONresponse []byte
+	JSONresponse, _ = json.Marshal(response)
+	fmt.Fprintln(w, string(JSONresponse))
 }

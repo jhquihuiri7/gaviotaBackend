@@ -82,25 +82,26 @@ func main() {
 	router.HandleFunc("/api/editReserveSingle", reserves.EditReserveSingle).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/editReserveExternal", reserves.EditReserveExternal).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/editReserveExternalBase", reserves.EditReserveExternalBase).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/editReservePrice", reserves.EditReservePrice).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/deleteReserve", reserves.DeleteReserve).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/randomReserves", utils.GetRandomReserves).Methods("GET", "OPTIONS")
-	router.HandleFunc("/api/generateLink",DB.GenerateLink).Methods("GET", "OPTIONS")
-	router.HandleFunc("/api/validateLink/expireAt/{linkToken}",DB.ValidateLink).Methods("GET", "OPTIONS")
-	router.HandleFunc("/api/getRecentAddedReserves",reserves.GetRecentAddedReserves).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/generateLink", DB.GenerateLink).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/validateLink/expireAt/{linkToken}", DB.ValidateLink).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/getRecentAddedReserves", reserves.GetRecentAddedReserves).Methods("GET", "OPTIONS")
 
 	//utils
-	router.HandleFunc("/api/ShareOtherReserves",utils.ShareOtherReserves).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/ShareOtherReserves", utils.ShareOtherReserves).Methods("GET", "OPTIONS")
 	//frequents
-	router.HandleFunc("/api/getFrequents",utils.GetFrequents).Methods("GET","OPTIONS")
+	router.HandleFunc("/api/getFrequents", utils.GetFrequents).Methods("GET", "OPTIONS")
 
 	//reports
 	router.HandleFunc("/api/dailyReport", reports.DailyExcelReport).Methods("GET", "OPTIONS")
-	router.HandleFunc("/api/getSalesReport",sales.SaleReport).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/getSalesReportOther",sales.SaleReportOther).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/getBalanceReport",sales.BalanceReport).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/registerAdvance",sales.RegisterAdvance).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/getHistoryReport",sales.PaymentHistoryReport).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/getDailyUserSales",more.GetDailyUserSales).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/getSalesReport", sales.SaleReport).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/getSalesReportOther", sales.SaleReportOther).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/getBalanceReport", sales.BalanceReport).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/registerAdvance", sales.RegisterAdvance).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/getHistoryReport", sales.PaymentHistoryReport).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/getDailyIncomes", more.GetDailyIncome).Methods("POST", "OPTIONS")
 
 	//payments
 	router.HandleFunc("/response", payments.PaymentResponse).Methods("GET", "OPTIONS")
@@ -112,37 +113,39 @@ func main() {
 	router.HandleFunc("/admin/getCountries", utils.CuntriesDB).Methods("GET", "OPTIONS")
 	router.HandleFunc("/admin/downloadCountries", utils.DownloadCuntriesDB).Methods("GET", "OPTIONS")
 	router.HandleFunc("/admin/getFrequents", dev.GetFrequents).Methods("GET", "OPTIONS")
+	router.HandleFunc("/admin/addPrices", dev.InsertPrices).Methods("GET", "OPTIONS")
 
 	//tickets
-	router.HandleFunc("/api/generateTicket",tickets.GenerateTicket1).Methods("GET", "OPTIONS")
-	router.HandleFunc("/api/generateTicket2",tickets.GenerateTicket2).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/generateTicket", tickets.GenerateTicket1).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/generateTicket2", tickets.GenerateTicket2).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/GaviotaTicketFerry", tickets.GenerateTicket2).Methods("GET", "OPTIONS")
+	//GaviotaTicketFerry
 	router.HandleFunc("/api/getPrinters", utils.GetPrinters).Methods("GET", "OPTIONS")
 
-
-	go func(){
+	go func() {
 		for {
-			result, err := variables.CloudinaryStorage.Admin.Assets(context.TODO(),admin.AssetsParams{AssetType: "raw"})
+			result, err := variables.CloudinaryStorage.Admin.Assets(context.TODO(), admin.AssetsParams{AssetType: "raw"})
 			if err != nil {
 				fmt.Println(err)
 
-			}else {
+			} else {
 				var publicIds []string
 				for _, v := range result.Assets {
-					if strings.Contains(v.SecureURL,"GaviotaFerry/Reports"){
+					if strings.Contains(v.SecureURL, "GaviotaFerry/Reports") {
 						fmt.Println(v.PublicID)
 						publicIds = append(publicIds, v.PublicID)
 					}
 
 				}
-				deleted, err :=variables.CloudinaryStorage.Admin.DeleteAssets(context.TODO(),admin.DeleteAssetsParams{PublicIDs: publicIds, AssetType: "raw"})
+				deleted, err := variables.CloudinaryStorage.Admin.DeleteAssets(context.TODO(), admin.DeleteAssetsParams{PublicIDs: publicIds, AssetType: "raw"})
 				if err != nil {
 					fmt.Println(err)
-				}else{
+				} else {
 					fmt.Println(deleted.Deleted)
 				}
 			}
 			//Dutation == 1 week
-			time.Sleep(time.Hour *168)
+			time.Sleep(time.Hour * 168)
 		}
 	}()
 

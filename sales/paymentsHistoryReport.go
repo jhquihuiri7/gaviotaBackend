@@ -10,23 +10,23 @@ import (
 	"net/http"
 )
 
-func PaymentHistoryReport (w http.ResponseWriter, r *http.Request){
+func PaymentHistoryReport(w http.ResponseWriter, r *http.Request) {
 	var referencePaymentHistory variables.ReferencePaymentHistory
 	var response variables.RequestResponse
 	err := json.NewDecoder(r.Body).Decode(&referencePaymentHistory)
 	if err != nil {
 		response.Error = "No se pudo decodificar referencia"
 	}
-	result := variables.PaymentsReferenceHistory.FindOne(context.TODO(),bson.D{{"reference",referencePaymentHistory.Reference}})
+	result := variables.PaymentsReferenceHistory.FindOne(context.TODO(), bson.D{{"reference", referencePaymentHistory.Reference}})
 	var JSONresponse []byte
 	if result.Err() == mongo.ErrNoDocuments {
 		response.Error = "No se encontraron pagos realizados"
 		JSONresponse, _ = json.Marshal(response)
-	}else {
+	} else {
 		err = result.Decode(&referencePaymentHistory)
 		if err != nil {
 			response.Error = "No se pudo decodificar referencia"
-		}else {
+		} else {
 			JSONresponse, _ = json.Marshal(referencePaymentHistory.History)
 		}
 	}

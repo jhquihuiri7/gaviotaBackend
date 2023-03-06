@@ -16,18 +16,23 @@ func SaleReport(w http.ResponseWriter, r *http.Request) {
 	var reservesTemp []variables.Reserve
 	var salesSliceReport []variables.ReportSalesData
 	var response variables.RequestResponse
+	params := r.URL.Query()
 	filterMap := make(map[string]int)
 
 	err := json.NewDecoder(r.Body).Decode(&filter)
 	if err != nil {
 		response.Error = "No es posible decodificar reservas"
 	}
+	searchFilter := bson.D{{"date", bson.D{{"$gte", filter.InitDate}, {"$lte", filter.FinalDate}}}, {"isPayed", false}}
+	if len(params["reference"]) != 0 {
+		searchFilter = append(searchFilter, bson.E{"reference", params["reference"][0]})
+	}
 	//opts := options.Find().SetProjection(bson.D{{"passenger", 1},{"age", 1}, {"reference", 1}, {"date", 1},{"time", 1},{"price", 1},{"route", 1},{"isPayed", 1},{"ship", 1}})
 	var cursor *mongo.Cursor
 	if filter.Collection == "Gaviota" {
-		cursor, err = variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"date", bson.D{{"$gte", filter.InitDate}, {"$lte", filter.FinalDate}}}, {"isPayed", false}})
+		cursor, err = variables.ReservesGaviotaCollection.Find(context.TODO(), searchFilter)
 	} else {
-		cursor, err = variables.ReservesOtherCollection.Find(context.TODO(), bson.D{{"date", bson.D{{"$gte", filter.InitDate}, {"$lte", filter.FinalDate}}}})
+		cursor, err = variables.ReservesOtherCollection.Find(context.TODO(), searchFilter)
 	}
 
 	if err != nil && cursor.Err() != nil {

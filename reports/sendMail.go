@@ -16,7 +16,7 @@ type MailRequest struct {
 	Response string `json:"response"`
 }
 
-func (r *MailRequest) SendMail(){
+func (r *MailRequest) SendMail() {
 
 	// sender data
 	from := "jhonatan.quihuiri@gmail.com" //ex: "John.Doe@gmail.com"

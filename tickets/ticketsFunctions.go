@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func  GetReservesTicket(reserveNumber string) variables.Ticket{
+func GetReservesTicket(reserveNumber string) variables.Ticket {
 	var Reserves []variables.Reserve
 	var total int
 	cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"reserve", reserveNumber}})
@@ -30,24 +30,24 @@ func  GetReservesTicket(reserveNumber string) variables.Ticket{
 		}
 	}
 	var passengers [][]string
-	for _, v := range GetPassenger(Reserves){
-		passenger := []string{v.Passenger,v.Country}
-		passengers =append(passengers, passenger)
+	for _, v := range GetPassenger(Reserves) {
+		passenger := []string{v.Passenger, v.Country}
+		passengers = append(passengers, passenger)
 	}
 	var routes [][]string
 	for _, v := range GetRoutes(Reserves) {
-		route := []string{reports.FormatDate(v.Date)[7:],v.Ship,TranslateTimeCheckIn(v.Route,v.Time)[0],TranslateTimeCheckIn(v.Route,v.Time)[1]}
+		route := []string{reports.FormatDate(v.Date)[7:], v.Ship, TranslateTimeCheckIn(v.Route, v.Time)[0], TranslateTimeCheckIn(v.Route, v.Time)[1]}
 		routes = append(routes, route)
 	}
 	return variables.Ticket{Routes: routes, Passengers: passengers, Total: total}
 }
-func GetRoutes(reserves []variables.Reserve)[]variables.TicketRoute{
+func GetRoutes(reserves []variables.Reserve) []variables.TicketRoute {
 	dates := make(map[primitive.DateTime]string)
 	for _, v := range reserves {
 		dates[v.Date] = v.Route
 	}
 	var ticketRoutes []variables.TicketRoute
-	for i, _:= range dates {
+	for i, _ := range dates {
 		routes := make(map[string]string)
 		for _, re := range reserves {
 			if re.Date == i {
@@ -56,7 +56,7 @@ func GetRoutes(reserves []variables.Reserve)[]variables.TicketRoute{
 			}
 		}
 		for index, ro := range routes {
-			ticketRoute := variables.TicketRoute{Date: i,Route: index,Time: ro}
+			ticketRoute := variables.TicketRoute{Date: i, Route: index, Time: ro}
 			ticketRoutes = append(ticketRoutes, ticketRoute)
 		}
 	}
@@ -68,12 +68,12 @@ func GetRoutes(reserves []variables.Reserve)[]variables.TicketRoute{
 			}
 		}
 	}
-	sort.Slice(ticketRoutes,func(i, j int)bool{
+	sort.Slice(ticketRoutes, func(i, j int) bool {
 		return ticketRoutes[i].Date < ticketRoutes[j].Date
 	})
-	return  ticketRoutes
+	return ticketRoutes
 }
-func GetPassenger(reserves []variables.Reserve)[]variables.TicketPassenger{
+func GetPassenger(reserves []variables.Reserve) []variables.TicketPassenger {
 	passengers := make(map[string]string)
 	var ticketPassengers []variables.TicketPassenger
 	for _, v := range reserves {
@@ -88,10 +88,7 @@ func GetPassenger(reserves []variables.Reserve)[]variables.TicketPassenger{
 	return ticketPassengers
 }
 
-
-
-
-func GetReservesTicket2(reserveNumber string)([]variables.Ticket, int){
+func GetReservesTicket2(reserveNumber string) ([]variables.Ticket, int) {
 	var Reserves []variables.Reserve
 	var total int
 	cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"reserve", reserveNumber}})
@@ -125,7 +122,7 @@ func GetReservesTicket2(reserveNumber string)([]variables.Ticket, int){
 	routes := GetRoutes(Reserves)
 	var tickets []variables.Ticket
 	for _, v := range routes {
-		ticket := variables.Ticket{Routes: [][]string{{reports.FormatDate(v.Date)[7:],strings.ToUpper(v.Ship),TranslateTimeCheckIn(v.Route,v.Time)[0],TranslateTimeCheckIn(v.Route,v.Time)[1]}},RouteId: []string{v.Route}}
+		ticket := variables.Ticket{Routes: [][]string{{reports.FormatDate(v.Date)[7:], strings.ToUpper(v.Ship), TranslateTimeCheckIn(v.Route, v.Time)[0], TranslateTimeCheckIn(v.Route, v.Time)[1]}}, RouteId: []string{v.Route}}
 		for _, re := range Reserves {
 			if re.Date == v.Date && re.Route == v.Route && re.Time == v.Time && re.Ship == v.Ship {
 				ticket.Passengers = append(ticket.Passengers, []string{re.Passenger, re.Country})
@@ -136,7 +133,7 @@ func GetReservesTicket2(reserveNumber string)([]variables.Ticket, int){
 
 	return tickets, total
 }
-func GetReservesTicketMini(reserveNumber string)([]variables.Ticket, int){
+func GetReservesTicketMini(reserveNumber string) ([]variables.Ticket, int) {
 	var Reserves []variables.Reserve
 	var total int
 	cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"reserve", reserveNumber}})
@@ -170,10 +167,10 @@ func GetReservesTicketMini(reserveNumber string)([]variables.Ticket, int){
 	routes := GetRoutes(Reserves)
 	var tickets []variables.Ticket
 	for _, v := range routes {
-		ticket := variables.Ticket{Routes: [][]string{{reports.FormatDate(v.Date)[7:],strings.ToUpper(v.Ship),TranslateTimeCheckIn(v.Route,v.Time)[0],TranslateTimeCheckIn(v.Route,v.Time)[1]}},RouteId: []string{v.Route}}
+		ticket := variables.Ticket{Routes: [][]string{{reports.FormatDate(v.Date)[7:], strings.ToUpper(v.Ship), TranslateTimeCheckIn(v.Route, v.Time)[0], TranslateTimeCheckIn(v.Route, v.Time)[1]}}, RouteId: []string{v.Route}}
 		for _, re := range Reserves {
 			if re.Date == v.Date && re.Route == v.Route && re.Time == v.Time && re.Ship == v.Ship {
-				ticket.Passengers = append(ticket.Passengers, []string{re.Passenger, re.Country, re.Passport, fmt.Sprintf("%d",re.Age),re.Status})
+				ticket.Passengers = append(ticket.Passengers, []string{re.Passenger, re.Country, re.Passport, fmt.Sprintf("%d", re.Age), re.Status})
 			}
 		}
 		tickets = append(tickets, ticket)
@@ -181,63 +178,63 @@ func GetReservesTicketMini(reserveNumber string)([]variables.Ticket, int){
 
 	return tickets, total
 }
-func TranslateRoute(route string)[]string{
+func TranslateRoute(route string) []string {
 	translatedMap := make(map[string][]string)
-	translatedMap["SX-SC"] = []string{"SANTA CRUZ","SAN CRISTÓBAL"}
-	translatedMap["SC-SX"] = []string{"SAN CRISTÓBAL","SANTA CRUZ"}
-	translatedMap["SX-IB"] = []string{"SANTA CRUZ","ISABELA"}
-	translatedMap["IB-SX"] = []string{"ISABELA","SANTA CRUZ"}
-	translatedMap["SX-FL"] = []string{"SANTA CRUZ","FLOREANA"}
-	translatedMap["FL-SX"] = []string{"FLOREANA","SANTA CRUZ"}
+	translatedMap["SX-SC"] = []string{"SANTA CRUZ", "SAN CRISTÓBAL"}
+	translatedMap["SC-SX"] = []string{"SAN CRISTÓBAL", "SANTA CRUZ"}
+	translatedMap["SX-IB"] = []string{"SANTA CRUZ", "ISABELA"}
+	translatedMap["IB-SX"] = []string{"ISABELA", "SANTA CRUZ"}
+	translatedMap["SX-FL"] = []string{"SANTA CRUZ", "FLOREANA"}
+	translatedMap["FL-SX"] = []string{"FLOREANA", "SANTA CRUZ"}
 	return translatedMap[route]
 }
-func TranslateTimeCheckIn(route, time string)[]string{
+func TranslateTimeCheckIn(route, time string) []string {
 	var translatedMap []string
 	if route == "SX-SC" {
 		if time == "Am" {
-			translatedMap = append(translatedMap,"06:15")
-			translatedMap = append(translatedMap,"07:00")
-		}else {
-			translatedMap = append(translatedMap,"14:15")
-			translatedMap = append(translatedMap,"15:00")
+			translatedMap = append(translatedMap, "06:15")
+			translatedMap = append(translatedMap, "07:00")
+		} else {
+			translatedMap = append(translatedMap, "14:15")
+			translatedMap = append(translatedMap, "15:00")
 		}
-	}else if route == "SC-SX" {
+	} else if route == "SC-SX" {
 		if time == "Am" {
-			translatedMap = append(translatedMap,"06:20")
-			translatedMap = append(translatedMap,"07:00")
-		}else {
-			translatedMap = append(translatedMap,"14:20")
-			translatedMap = append(translatedMap,"15:00")
+			translatedMap = append(translatedMap, "06:20")
+			translatedMap = append(translatedMap, "07:00")
+		} else {
+			translatedMap = append(translatedMap, "14:20")
+			translatedMap = append(translatedMap, "15:00")
 		}
-	}else if route == "SX-IB" {
+	} else if route == "SX-IB" {
 		if time == "Am" {
-			translatedMap = append(translatedMap,"06:20")
-			translatedMap = append(translatedMap,"07:00")
-		}else {
-			translatedMap = append(translatedMap,"14:15")
-			translatedMap = append(translatedMap,"15:00")
+			translatedMap = append(translatedMap, "06:20")
+			translatedMap = append(translatedMap, "07:00")
+		} else {
+			translatedMap = append(translatedMap, "14:15")
+			translatedMap = append(translatedMap, "15:00")
 		}
-	}else if route == "IB-SX" {
+	} else if route == "IB-SX" {
 		if time == "Am" {
-			translatedMap = append(translatedMap,"05:20")
-			translatedMap = append(translatedMap,"06:00")
-		}else {
-			translatedMap = append(translatedMap,"14:20")
-			translatedMap = append(translatedMap,"15:00")
+			translatedMap = append(translatedMap, "05:20")
+			translatedMap = append(translatedMap, "06:00")
+		} else {
+			translatedMap = append(translatedMap, "14:20")
+			translatedMap = append(translatedMap, "15:00")
 		}
-	}else if route == "SX-FL" {
-		translatedMap = append(translatedMap,"07:20")
-		translatedMap = append(translatedMap,"08:00")
-	}else if route == "FL-SX" {
-		translatedMap = append(translatedMap,"14:20")
-		translatedMap = append(translatedMap,"15:00")
-	}else {
+	} else if route == "SX-FL" {
+		translatedMap = append(translatedMap, "07:20")
+		translatedMap = append(translatedMap, "08:00")
+	} else if route == "FL-SX" {
+		translatedMap = append(translatedMap, "14:20")
+		translatedMap = append(translatedMap, "15:00")
+	} else {
 		if time == "Am" {
-			translatedMap = append(translatedMap,"06:15")
-			translatedMap = append(translatedMap,"07:00")
-		}else{
-			translatedMap = append(translatedMap,"14:15")
-			translatedMap = append(translatedMap,"15:00")
+			translatedMap = append(translatedMap, "06:15")
+			translatedMap = append(translatedMap, "07:00")
+		} else {
+			translatedMap = append(translatedMap, "14:15")
+			translatedMap = append(translatedMap, "15:00")
 		}
 	}
 	return translatedMap

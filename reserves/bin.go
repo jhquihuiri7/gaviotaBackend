@@ -60,7 +60,7 @@ func RestoreBin(w http.ResponseWriter, r *http.Request) {
 					response.Succes = "Reserva restaurada correctamente"
 				}
 			}
-		} else if reserve.Ship == "Undefined"{
+		} else if reserve.Ship == "Undefined" {
 			_, err = variables.ReservesExternalCollection.InsertOne(context.TODO(), reserve)
 			if err != nil {
 				response.Error = "No se pudo restaurar reserva"

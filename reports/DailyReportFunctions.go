@@ -29,8 +29,8 @@ func GetDailyReportData(DailyRequest variables.DailyReportRequest) []variables.R
 	return Reserves
 }
 
-func ApplyFontStyleTitle(cell, text string,f *excelize.File){
-	f.SetCellRichText("Sheet1",cell,[]excelize.RichTextRun{
+func ApplyFontStyleTitle(cell, text string, f *excelize.File) {
+	f.SetCellRichText("Sheet1", cell, []excelize.RichTextRun{
 		{
 			Text: text,
 			Font: &excelize.Font{
@@ -39,8 +39,8 @@ func ApplyFontStyleTitle(cell, text string,f *excelize.File){
 			},
 		}})
 }
-func ApplyFontStyleSubtitle(cell, text string,f *excelize.File){
-	f.SetCellRichText("Sheet1",cell,[]excelize.RichTextRun{
+func ApplyFontStyleSubtitle(cell, text string, f *excelize.File) {
+	f.SetCellRichText("Sheet1", cell, []excelize.RichTextRun{
 		{
 			Text: text,
 			Font: &excelize.Font{
@@ -50,8 +50,8 @@ func ApplyFontStyleSubtitle(cell, text string,f *excelize.File){
 		}})
 
 }
-func ApplyFontStyleText(cell, text string,f *excelize.File){
-	f.SetCellRichText("Sheet1",cell,[]excelize.RichTextRun{
+func ApplyFontStyleText(cell, text string, f *excelize.File) {
+	f.SetCellRichText("Sheet1", cell, []excelize.RichTextRun{
 		{
 			Text: text,
 			Font: &excelize.Font{
@@ -60,8 +60,8 @@ func ApplyFontStyleText(cell, text string,f *excelize.File){
 		}})
 
 }
-func ApplyFontStyleMini(cell, text1,text2,text3,text4 string,f *excelize.File){
-	f.SetCellRichText("Sheet1",cell,[]excelize.RichTextRun{
+func ApplyFontStyleMini(cell, text1, text2, text3, text4 string, f *excelize.File) {
+	f.SetCellRichText("Sheet1", cell, []excelize.RichTextRun{
 		{
 			Text: text1,
 			Font: &excelize.Font{
@@ -92,8 +92,8 @@ func ApplyFontStyleMini(cell, text1,text2,text3,text4 string,f *excelize.File){
 	)
 
 }
-func SetCellStyleMini(hcell, vcell string, f *excelize.File){
-	f.MergeCell("Sheet1",hcell,vcell)
+func SetCellStyleMini(hcell, vcell string, f *excelize.File) {
+	f.MergeCell("Sheet1", hcell, vcell)
 	style, err := f.NewStyle(&excelize.Style{
 		Border: []excelize.Border{
 			{Type: "left", Color: "808080", Style: 2},
@@ -117,8 +117,8 @@ func SetCellStyleMini(hcell, vcell string, f *excelize.File){
 	}
 	err = f.SetCellStyle("Sheet1", hcell, vcell, style)
 }
-func SetCellStyleSubtitle(hcell, vcell string, f *excelize.File){
-	f.MergeCell("Sheet1",hcell,vcell)
+func SetCellStyleSubtitle(hcell, vcell string, f *excelize.File) {
+	f.MergeCell("Sheet1", hcell, vcell)
 	style, err := f.NewStyle(&excelize.Style{
 		Border: []excelize.Border{
 			{Type: "left", Color: "808080", Style: 2},
@@ -143,8 +143,8 @@ func SetCellStyleSubtitle(hcell, vcell string, f *excelize.File){
 	}
 	err = f.SetCellStyle("Sheet1", hcell, vcell, style)
 }
-func SetCellStyleText(hcell, vcell string, f *excelize.File){
-	f.MergeCell("Sheet1",hcell,vcell)
+func SetCellStyleText(hcell, vcell string, f *excelize.File) {
+	f.MergeCell("Sheet1", hcell, vcell)
 	style, err := f.NewStyle(&excelize.Style{
 		Border: []excelize.Border{
 			{Type: "left", Color: "808080", Style: 2},
@@ -169,14 +169,14 @@ func SetCellStyleText(hcell, vcell string, f *excelize.File){
 	err = f.SetCellStyle("Sheet1", hcell, vcell, style)
 }
 
-func GenerateContent (reserves []variables.Reserve, f *excelize.File){
+func GenerateContent(reserves []variables.Reserve, f *excelize.File) {
 	var index int
 	var indexString string
 	for i, v := range reserves {
 		if v.Age >= 2 {
 			index++
-			indexString = fmt.Sprintf("%d",index)
-		}else {
+			indexString = fmt.Sprintf("%d", index)
+		} else {
 			indexString = ""
 		}
 		if v.Age < 0 {
@@ -187,36 +187,36 @@ func GenerateContent (reserves []variables.Reserve, f *excelize.File){
 		tur := ""
 		switch v.Status {
 		case "Residente":
-			res ="x"
+			res = "x"
 		case "Temporal":
-			tem ="x"
+			tem = "x"
 		case "Turista":
-			tur ="x"
+			tur = "x"
 		default:
-			res ="x"
+			res = "x"
 		}
-		ApplyFontStyleText(fmt.Sprintf("C%d",14+i),indexString,f)
-		ApplyFontStyleText(fmt.Sprintf("D%d",14+i),strings.ToUpper(v.Passenger),f)
-		ApplyFontStyleText(fmt.Sprintf("H%d",14+i),strings.ToUpper(v.Passport),f)
-		ApplyFontStyleText(fmt.Sprintf("K%d",14+i),strings.ToUpper(v.Country),f)
-		ApplyFontStyleText(fmt.Sprintf("N%d",14+i),fmt.Sprintf("%d",v.Age),f)
-		ApplyFontStyleText(fmt.Sprintf("P%d",14+i),res,f)
-		ApplyFontStyleText(fmt.Sprintf("Q%d",14+i),tem,f)
-		ApplyFontStyleText(fmt.Sprintf("R%d",14+i),tur,f)
-		ApplyFontStyleText(fmt.Sprintf("S%d",14+i),v.Phone,f)
-		ApplyFontStyleText(fmt.Sprintf("U%d",14+i),strings.ToUpper(v.Comment),f)
+		ApplyFontStyleText(fmt.Sprintf("C%d", 14+i), indexString, f)
+		ApplyFontStyleText(fmt.Sprintf("D%d", 14+i), strings.ToUpper(v.Passenger), f)
+		ApplyFontStyleText(fmt.Sprintf("H%d", 14+i), strings.ToUpper(v.Passport), f)
+		ApplyFontStyleText(fmt.Sprintf("K%d", 14+i), strings.ToUpper(v.Country), f)
+		ApplyFontStyleText(fmt.Sprintf("N%d", 14+i), fmt.Sprintf("%d", v.Age), f)
+		ApplyFontStyleText(fmt.Sprintf("P%d", 14+i), res, f)
+		ApplyFontStyleText(fmt.Sprintf("Q%d", 14+i), tem, f)
+		ApplyFontStyleText(fmt.Sprintf("R%d", 14+i), tur, f)
+		ApplyFontStyleText(fmt.Sprintf("S%d", 14+i), v.Phone, f)
+		ApplyFontStyleText(fmt.Sprintf("U%d", 14+i), strings.ToUpper(v.Comment), f)
 
-		SetCellStyleText(fmt.Sprintf("A%d",14+i),fmt.Sprintf("A%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("B%d",14+i),fmt.Sprintf("B%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("C%d",14+i),fmt.Sprintf("C%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("D%d",14+i),fmt.Sprintf("G%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("H%d",14+i),fmt.Sprintf("J%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("K%d",14+i),fmt.Sprintf("M%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("N%d",14+i),fmt.Sprintf("O%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("P%d",14+i),fmt.Sprintf("P%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("Q%d",14+i),fmt.Sprintf("Q%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("R%d",14+i),fmt.Sprintf("R%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("S%d",14+i),fmt.Sprintf("T%d",14+i),f)
-		SetCellStyleText(fmt.Sprintf("U%d",14+i),fmt.Sprintf("W%d",14+i),f)
+		SetCellStyleText(fmt.Sprintf("A%d", 14+i), fmt.Sprintf("A%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("B%d", 14+i), fmt.Sprintf("B%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("C%d", 14+i), fmt.Sprintf("C%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("D%d", 14+i), fmt.Sprintf("G%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("H%d", 14+i), fmt.Sprintf("J%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("K%d", 14+i), fmt.Sprintf("M%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("N%d", 14+i), fmt.Sprintf("O%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("P%d", 14+i), fmt.Sprintf("P%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("Q%d", 14+i), fmt.Sprintf("Q%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("R%d", 14+i), fmt.Sprintf("R%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("S%d", 14+i), fmt.Sprintf("T%d", 14+i), f)
+		SetCellStyleText(fmt.Sprintf("U%d", 14+i), fmt.Sprintf("W%d", 14+i), f)
 	}
 }

@@ -9,9 +9,8 @@ import (
 	"github.com/johnfercher/maroto/pkg/props"
 )
 
-
-func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize float64, showTotal bool, lang string){
-	var blueColor = color.Color{Red: 105, Green: 197,Blue: 197}
+func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize float64, showTotal bool, lang string) {
+	var blueColor = color.Color{Red: 105, Green: 197, Blue: 197}
 	var text []string
 
 	if lang == "es" {
@@ -24,7 +23,7 @@ func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize
 		text = append(text, "Cédula")
 		text = append(text, "Vendedor:")
 		text = append(text, "TOTAL:")
-	}else {
+	} else {
 		text = append(text, "Travel date")
 		text = append(text, "Ferry")
 		text = append(text, "Check-in time")
@@ -36,9 +35,9 @@ func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize
 		text = append(text, "TOTAL:")
 	}
 
-	m.Row(2,func(){})
+	m.Row(2, func() {})
 	m.TableList(
-		[]string{text[0],text[1],text[2],text[3]},
+		[]string{text[0], text[1], text[2], text[3]},
 		ticketData.Routes,
 		props.TableList{
 			HeaderProp: props.TableListContent{
@@ -48,13 +47,13 @@ func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize
 			ContentProp: props.TableListContent{
 				Size: litleSize,
 			},
-			HeaderContentSpace: 0,
+			HeaderContentSpace:     0,
 			VerticalContentPadding: 0,
 		},
 	)
-	m.Row(5, func(){})
+	m.Row(5, func() {})
 	m.TableList(
-		[]string{text[4],text[5]},
+		[]string{text[4], text[5]},
 		ticketData.Passengers,
 		props.TableList{
 			Align: consts.Center,
@@ -64,29 +63,29 @@ func GenerateTicketContent1(m pdf.Maroto, ticketData variables.Ticket, litleSize
 			ContentProp: props.TableListContent{
 				Size: litleSize,
 			},
-			HeaderContentSpace: 0,
+			HeaderContentSpace:     0,
 			VerticalContentPadding: 0,
 		},
 	)
 
 	if showTotal {
-		m.Row(12,func(){
-			m.Col(2,func(){
+		m.Row(12, func() {
+			m.Col(2, func() {
 				m.Text(text[7])
 			})
-			m.Col(2,func(){
+			m.Col(2, func() {
 				m.Text("Moraima Freire")
 			})
-			m.Col(4,func(){
+			m.Col(4, func() {
 				m.Text("")
 			})
-			m.Col(2,func(){
+			m.Col(2, func() {
 				m.Text(text[8])
 			})
-			m.Col(2,func(){
-				m.Text(fmt.Sprintf("$%d.00",ticketData.Total))
+			m.Col(2, func() {
+				m.Text(fmt.Sprintf("$%d.00", ticketData.Total))
 			})
 		})
 	}
-	m.Row(5,func(){})
+	m.Row(5, func() {})
 }

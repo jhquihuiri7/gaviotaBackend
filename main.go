@@ -119,6 +119,8 @@ func main() {
 	router.HandleFunc("/api/generateTicket", tickets.GenerateTicket1).Methods("GET", "OPTIONS")
 	router.HandleFunc("/api/generateTicket2", tickets.GenerateTicket2).Methods("GET", "OPTIONS")
 	router.HandleFunc("/api/GaviotaTicketFerry", tickets.GenerateTicket2).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/printTicket", utils.PrintTicket).Methods("GET", "OPTIONS")
+
 	//GaviotaTicketFerry
 	router.HandleFunc("/api/getPrinters", utils.GetPrinters).Methods("GET", "OPTIONS")
 

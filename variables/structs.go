@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-//Login
+// Login
 type UserLogin struct {
 	User     string `bson:"user" json:"user"`
 	Password string `bson:"password" json:"password"`
@@ -33,13 +33,13 @@ type LoginResponse struct {
 	Rol   string `json:"rol"`
 }
 
-//Countries
+// Countries
 type Country struct {
 	Name string `json:"name"`
 	Code string `json:"code"`
 }
 
-//Users
+// Users
 type UsersData struct {
 	Id       string `bson:"_id" json:"id"`
 	Name     string `bson:"name" json:"name"`
@@ -54,7 +54,7 @@ type UserCredential struct {
 	Rol  string `bson:"rol" json:"rol"`
 }
 
-//References
+// References
 type ReferencesData struct {
 	Id            string `bson:"_id" json:"id"`
 	Name          string `bson:"name" json:"name"`
@@ -64,7 +64,7 @@ type ReferencesData struct {
 	OlderPrice    int    `bson:"olderPrice" json:"olderPrice"`
 }
 
-//Reserves
+// Reserves
 type Reserve struct {
 	Id             string             `bson:"_id" json:"id"`
 	ReserveNumber  string             `bson:"reserve" json:"reserve"`
@@ -134,7 +134,7 @@ type PaymentInfo struct {
 	Reference           string `bson:"reference" json:"reference"`
 }
 
-//Report Scarlett
+// Report Scarlett
 type ReportSalesFilter struct {
 	InitDate   primitive.DateTime `json:"initDate"`
 	FinalDate  primitive.DateTime `json:"finalDate"`
@@ -221,7 +221,7 @@ type DailyIncomes struct {
 	Reserves []Reserve `json:"reserves"`
 }
 
-//DEV
+// DEV
 type FrequentsOld struct {
 	Name     string `bson:"referencia"`
 	Status   string `bson:"status"`

@@ -15,26 +15,26 @@ import (
 	"time"
 )
 
-func BalanceReport (w http.ResponseWriter, r *http.Request){
+func BalanceReport(w http.ResponseWriter, r *http.Request) {
 	var referenceSalesState variables.RefereceSalesState
 	var response variables.RequestResponse
-	referenceTotalSales :=  make(map[string]int)
-	referencePayedSales :=  make(map[string]int)
+	referenceTotalSales := make(map[string]int)
+	referencePayedSales := make(map[string]int)
 	err := json.NewDecoder(r.Body).Decode(&referenceSalesState)
 	if err != nil {
 		response.Error = "No se pudo decodificar petición"
 	}
-	result := variables.ReferencesCollection.FindOne(context.TODO(),bson.D{{"name",referenceSalesState.Name}})
+	result := variables.ReferencesCollection.FindOne(context.TODO(), bson.D{{"name", referenceSalesState.Name}})
 	if result.Err() == mongo.ErrNoDocuments {
 		response.Error = "No se encontró resultados"
-	}else {
+	} else {
 		err = result.Decode(&referenceSalesState)
 		if err != nil {
 			response.Error = "No se pudo decodificar petición"
 		}
-		func(){
+		func() {
 			var referencePaymentHistory variables.ReferencePaymentHistory
-			result = variables.PaymentsReferenceHistory.FindOne(context.TODO(),bson.D{{"reference",referenceSalesState.Name}})
+			result = variables.PaymentsReferenceHistory.FindOne(context.TODO(), bson.D{{"reference", referenceSalesState.Name}})
 			if result.Err() == mongo.ErrNoDocuments {
 				response.Error = "No se existen registros de pagos"
 				return
@@ -45,11 +45,11 @@ func BalanceReport (w http.ResponseWriter, r *http.Request){
 			})
 			referenceSalesState.Pending = referencePaymentHistory.History[0].Pending
 		}()
-		cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(),bson.D{{"reference",referenceSalesState.Name}})
+		cursor, err := variables.ReservesGaviotaCollection.Find(context.TODO(), bson.D{{"reference", referenceSalesState.Name}})
 		if err != nil {
 			response.Error = "No se existen reservas de proveedor"
 		}
-		for cursor.Next(context.TODO()){
+		for cursor.Next(context.TODO()) {
 			var reserve variables.Reserve
 			err = cursor.Decode(&reserve)
 			if err != nil {
@@ -72,9 +72,9 @@ func BalanceReport (w http.ResponseWriter, r *http.Request){
 				refereceSalesMonth.PayedReserves = referencePayedSales[i]
 			}
 
-			year,err := strconv.Atoi(i[:4])
-			month,err := strconv.Atoi(i[5:7])
-			genTime := time.Date(year,time.Month(month),1,0,0,0,0,time.Local)
+			year, err := strconv.Atoi(i[:4])
+			month, err := strconv.Atoi(i[5:7])
+			genTime := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -84,7 +84,7 @@ func BalanceReport (w http.ResponseWriter, r *http.Request){
 		}
 	}
 	JSONresponse := []byte{}
-	if len(referenceSalesState.MonthlyData) > 0 && referenceSalesState.MonthlyData == nil{
+	if len(referenceSalesState.MonthlyData) > 0 && referenceSalesState.MonthlyData == nil {
 		JSONresponse, _ = json.Marshal(response)
 	} else {
 		JSONresponse, _ = json.Marshal(referenceSalesState)

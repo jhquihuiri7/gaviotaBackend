@@ -12,10 +12,10 @@ import (
 	"time"
 )
 
-func GenerateLink(w http.ResponseWriter, r *http.Request){
+func GenerateLink(w http.ResponseWriter, r *http.Request) {
 	var response variables.RequestResponse
 	newLink := variables.Link{
-		LinkId:       strings.Split(uuid.NewV4().String(),".")[0],
+		LinkId:       strings.Split(uuid.NewV4().String(), ".")[0],
 		CreationDate: time.Now(),
 	}
 	response.Succes = newLink.LinkId
@@ -23,7 +23,7 @@ func GenerateLink(w http.ResponseWriter, r *http.Request){
 	JSONresponse, _ := json.Marshal(response)
 	fmt.Fprintln(w, string(JSONresponse))
 }
-func ValidateLink(w http.ResponseWriter, r *http.Request){
+func ValidateLink(w http.ResponseWriter, r *http.Request) {
 	var response variables.RequestResponse
 	params := mux.Vars(r)
 	expire := params["linkToken"]
@@ -34,11 +34,11 @@ func ValidateLink(w http.ResponseWriter, r *http.Request){
 			if duration < time.Hour*2 {
 				response.Succes = "Link válido"
 				response.Error = ""
-			}else {
+			} else {
 				response.Error = "Link no válido"
 			}
 			break
-		}else {
+		} else {
 			response.Error = "No se encontró link"
 		}
 	}

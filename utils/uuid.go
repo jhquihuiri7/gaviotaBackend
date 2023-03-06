@@ -31,7 +31,7 @@ func GenerateReserve() string {
 	//	for i := 0; i < 4; i++ {
 	//		letter3 += letters[rand.Intn(len(letters))]
 	//	}
-//
+	//
 	//	reserve = fmt.Sprint(letter1, number1, letter2, number2, letter2)
 	//	result1 := variables.ReservesGaviotaCollection.FindOne(context.TODO(),bson.D{{"reserve",reserve}})
 	//	result2 := variables.ReservesGaviotaCollection.FindOne(context.TODO(),bson.D{{"reserve",reserve}})

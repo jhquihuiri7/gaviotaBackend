@@ -7,9 +7,9 @@ import (
 	"github.com/johnfercher/maroto/pkg/props"
 )
 
-func GenerateTicketCondition (m pdf.Maroto, titleSize float64, lang string){
-	var orangeColor = color.Color{Red: 249, Green: 73,Blue: 3}
-	var blueColor = color.Color{Red: 105, Green: 197,Blue: 197}
+func GenerateTicketCondition(m pdf.Maroto, titleSize float64, lang string) {
+	var orangeColor = color.Color{Red: 249, Green: 73, Blue: 3}
+	var blueColor = color.Color{Red: 105, Green: 197, Blue: 197}
 	var text []string
 	if lang == "es" {
 		text = append(text, "CONDICIONES DE VIAJE")
@@ -22,7 +22,7 @@ func GenerateTicketCondition (m pdf.Maroto, titleSize float64, lang string){
 		text = append(text, "Si el pasajero no viaja deberá informar a la agencia operadora donde compró su ticket con 48 horas de anticipación o perderá su valor. Con penalidad de $5 por cargos administrativos")
 		text = append(text, "Se recomienda estar 40 minutos antes de la hora de salida.")
 		text = append(text, "En caso de retraso del pasajero a la hora de salida, la embarcación no se responsabiliza por la pérdida del viaje.")
-	}else {
+	} else {
 		text = append(text, "TRAVEL CONDITIONS")
 		text = append(text, "One personal item")
 		text = append(text, "up to 5 kg")
@@ -35,10 +35,8 @@ func GenerateTicketCondition (m pdf.Maroto, titleSize float64, lang string){
 		text = append(text, "In case of delay of the passenger at the time of departure, the ferry is not responsible for the loss of the trip.")
 	}
 
-
-
 	m.Row(10, func() {
-		m.Col(12, func(){
+		m.Col(12, func() {
 			m.Text(text[0], props.Text{
 				Align: consts.Left,
 				Size:  titleSize,
@@ -48,42 +46,42 @@ func GenerateTicketCondition (m pdf.Maroto, titleSize float64, lang string){
 		})
 	})
 	m.Row(50, func() {
-		m.Col(2,func(){
-			m.FileImage("./files/assets/flat.png",props.Rect{Percent: 70, Center: true})
+		m.Col(2, func() {
+			m.FileImage("./files/assets/flat.png", props.Rect{Percent: 70, Center: true})
 		})
-		m.Col(2,func(){
-			m.Text(text[1], fancyConditionStyle(blueColor,10,15))
-			m.Text(text[2], fancyConditionStyle(orangeColor,10,23))
+		m.Col(2, func() {
+			m.Text(text[1], fancyConditionStyle(blueColor, 10, 15))
+			m.Text(text[2], fancyConditionStyle(orangeColor, 10, 23))
 		})
-		m.Col(2,func(){
-			m.FileImage("./files/assets/mochila.png", props.Rect{Percent: 100, Center: true})
+		m.Col(2, func() {
+			m.FileImage("./files/assets/mochila.jpg", props.Rect{Percent: 100, Center: true})
 		})
-		m.Col(2,func(){
-			m.Text(text[3], fancyConditionStyle(blueColor,10,15))
-			m.Text(text[4], fancyConditionStyle(orangeColor,10,23))
+		m.Col(2, func() {
+			m.Text(text[3], fancyConditionStyle(blueColor, 10, 15))
+			m.Text(text[4], fancyConditionStyle(orangeColor, 10, 23))
 		})
-		m.Col(2,func(){
+		m.Col(2, func() {
 			m.FileImage("./files/assets/Dolar.png", props.Rect{Percent: 60, Center: true, Top: -50})
 		})
-		m.Col(2,func(){
-			m.Text(text[5], fancyConditionStyle(blueColor,10,15))
-			m.Text(text[6], fancyConditionStyle(orangeColor,10,22))
+		m.Col(2, func() {
+			m.Text(text[5], fancyConditionStyle(blueColor, 10, 15))
+			m.Text(text[6], fancyConditionStyle(orangeColor, 10, 22))
 		})
 	})
 
 	m.Row(6, func() {
-		m.Col(12, func(){
-			m.Text(text[7], littleConditionStyle(orangeColor,8))
+		m.Col(12, func() {
+			m.Text(text[7], littleConditionStyle(orangeColor, 8))
 		})
 	})
 	m.Row(3, func() {
-		m.Col(12, func(){
-			m.Text(text[8], littleConditionStyle(orangeColor,8))
+		m.Col(12, func() {
+			m.Text(text[8], littleConditionStyle(orangeColor, 8))
 		})
 	})
 	m.Row(3, func() {
-		m.Col(12, func(){
-			m.Text(text[9], littleConditionStyle(orangeColor,8))
+		m.Col(12, func() {
+			m.Text(text[9], littleConditionStyle(orangeColor, 8))
 		})
 	})
 }
@@ -98,7 +96,7 @@ func littleConditionStyle(color color.Color, size float64) props.Text {
 func fancyConditionStyle(color color.Color, size float64, top float64) props.Text {
 	return props.Text{
 		Align: consts.Left,
-		Top: top,
+		Top:   top,
 		Size:  size,
 		Style: consts.Bold,
 		Color: color,

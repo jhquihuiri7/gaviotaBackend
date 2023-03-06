@@ -22,7 +22,7 @@ func GenerateHeaderTicket(m pdf.Maroto, litleSize float64, lang string) {
 				"./files/assets/lOGO-01.png",
 				props.Rect{
 					Percent: 100,
-					Center: true,
+					Center:  true,
 				},
 			)
 		})
@@ -32,7 +32,7 @@ func GenerateHeaderTicket(m pdf.Maroto, litleSize float64, lang string) {
 			text = append(text, "Av. Española y Charles Darwin")
 			text = append(text, "Celular: 0993731079")
 			text = append(text, "Correo: ventasdarwinscubadive@gmail.com")
-		}else {
+		} else {
 			text = append(text, "FERRY TICKET")
 			text = append(text, "Av. Española y Charles Darwin")
 			text = append(text, "Phone: 0993731079")
@@ -47,19 +47,19 @@ func GenerateHeaderTicket(m pdf.Maroto, litleSize float64, lang string) {
 				Extrapolate: true,
 			})
 			m.Text(text[1], props.Text{
-				Align:       consts.Right,
-				Size:        litleSize,
-				Top: 7,
+				Align: consts.Right,
+				Size:  litleSize,
+				Top:   7,
 			})
 			m.Text(text[2], props.Text{
-				Align:       consts.Right,
-				Size:        litleSize,
-				Top: 11,
+				Align: consts.Right,
+				Size:  litleSize,
+				Top:   11,
 			})
 			m.Text(text[3], props.Text{
 				Align: consts.Right,
 				Size:  litleSize,
-				Top: 15,
+				Top:   15,
 			})
 		})
 	})

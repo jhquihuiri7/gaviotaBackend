@@ -3,19 +3,23 @@ package utils
 import (
 	"context"
 	"fmt"
+	"gaviotaBackend/reports"
+	"gaviotaBackend/tickets"
 	"gaviotaBackend/variables"
 	"github.com/johnfercher/maroto/pkg/consts"
 	"github.com/johnfercher/maroto/pkg/pdf"
 	"github.com/johnfercher/maroto/pkg/props"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	param := r.URL.Query()
-	//reserve := param["reserve"][0]
+	reserve := param["reserve"][0]
 	user := param["user"][0]
 	lang := param["lang"][0]
 	var userData variables.UsersData
@@ -24,9 +28,8 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	//titleSize := 12.0
+	ticketsData, total := tickets.GetReservesTicket2(reserve)
 	litleSize := 5.0
-	//conditionsSize := 7.0
 	var text []string
 	if lang == "es" {
 		text = append(text, "Tickets de ferry, información & servicios turísticos")
@@ -39,8 +42,9 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 		text = append(text, "Phone: 0993731079")
 		text = append(text, "Email: gaviota.ferry@gmail.com")
 	}
-	m := pdf.NewMarotoCustomSize(consts.Portrait, "A7", "mm", 74.0, 140.0)
-	m.SetPageMargins(5, 5, 5)
+	m := pdf.NewMarotoCustomSize(consts.Portrait, "c6", "mm", 74.0, getTickeHeight(len(ticketsData), "clientTicket"))
+	m.SetPageMargins(5, 0, 5)
+	m.SetBorder(false)
 
 	m.Row(10, func() {
 		m.FileImage(
@@ -76,7 +80,7 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 			Size:  litleSize,
 		})
 	})
-	Routes(m, litleSize)
+	Routes(m, litleSize, user, ticketsData, total)
 	m.Row(3, func() {})
 	m.Row(3, func() {
 		m.Text("Condiciones de viaje:", props.Text{Size: litleSize, Align: consts.Left, Style: consts.Bold})
@@ -96,14 +100,6 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	m.Row(4, func() {
 		m.Text("El  servicio   portuario  de taxis  acuáticos ($1,00)  en cada  isla y los  impuestos municipales en cada isla no están incluidos en el valor del ferry.", props.Text{Size: litleSize, Align: consts.Left})
 	})
-	m.Row(3, func() {})
-	m.Line(1)
-	m.Row(2, func() {})
-	m.Row(2, func() {
-		m.Text("(COPIA PARA OFICINA)", props.Text{Size: litleSize, Align: consts.Center})
-	})
-
-	Routes(m, litleSize)
 	dd, err := m.Output()
 	if err != nil {
 		fmt.Println("Could not save PdfDaily:", err)
@@ -112,38 +108,87 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=ticket.pdf")
 	w.Write(dd.Bytes())
 }
-func Routes(m pdf.Maroto, litleSize float64) {
-	m.Row(3, func() {
-		m.Text("RUTA 1", props.Text{Size: litleSize, Style: consts.Italic, Align: consts.Center})
+func PrintTicketCopy(w http.ResponseWriter, r *http.Request) {
+	param := r.URL.Query()
+	reserve := param["reserve"][0]
+	user := param["user"][0]
+	var userData variables.UsersData
+	result := variables.UsersCollection.FindOne(context.TODO(), bson.D{{"user", strings.ToUpper(user)}})
+	err := result.Decode(&userData)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ticketsData, total := tickets.GetReservesTicket2(reserve)
+	litleSize := 5.0
+
+	m := pdf.NewMarotoCustomSize(consts.Portrait, "A7", "mm", 74.0, getTickeHeight(len(ticketsData), "copyTicket"))
+	m.SetPageMargins(5, 5, 5)
+
+	m.Row(2, func() {
+		m.Text("(COPIA PARA OFICINA)", props.Text{Size: litleSize, Align: consts.Center})
 	})
-	m.TableList(
-		[]string{"", ""},
-		[][]string{{"Referencia", "Morayma Freire"}},
-		props.TableList{
-			ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{4, 8}},
-			HeaderContentSpace: -5,
-			Line:               true,
-			Align:              consts.Middle,
+	Routes(m, litleSize, user, ticketsData, total)
+	dd, err := m.Output()
+	if err != nil {
+		fmt.Println("Could not save PdfDaily:", err)
+		os.Exit(1)
+	}
+	w.Header().Set("Content-Disposition", "attachment; filename=ticket.pdf")
+	w.Write(dd.Bytes())
+}
+func Routes(m pdf.Maroto, litleSize float64, user string, ticketsData []variables.Ticket, total int) {
+
+	for i, v := range ticketsData {
+		m.Row(3, func() {
+			m.Text(fmt.Sprintf("RUTA %d", i+1), props.Text{Size: litleSize, Style: consts.BoldItalic, Align: consts.Center})
 		})
-	m.TableList(
-		[]string{"", "", "", ""},
-		[][]string{
-			{"Fecha", "12 de marzo de 2023", "Hora", "7:00 AM"},
-			{"Ruta", "San Cristóbal - Santa Cruz", "Chequeo", "6:15 AM"},
-			{"FERRY", "GAVIOTA", "Paxs", "4"}},
-		props.TableList{
-			ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{2, 5, 3, 2}},
-			Line:               true,
-			Align:              consts.Middle,
-			HeaderContentSpace: -5,
-		})
+		m.TableList(
+			[]string{"", ""},
+			[][]string{{"Referencia", fmt.Sprintf("%s x%d", v.Passengers[0][0], len(v.Passengers))}},
+			props.TableList{
+				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{4, 8}},
+				HeaderContentSpace: -5,
+				Line:               true,
+				Align:              consts.Middle,
+			})
+		m.TableList(
+			[]string{"", "", "", ""},
+			[][]string{
+				{"Fecha", fmt.Sprintf("%s", v.Routes[0][0]), "Hora", fmt.Sprintf("%s", v.Routes[0][3])},
+				{"Ruta", fmt.Sprintf("%s-%s", tickets.TranslateRoute(v.RouteId[0])[0], tickets.TranslateRoute(v.RouteId[0])[1]), "Chequeo", fmt.Sprintf("%s", v.Routes[0][2])},
+				{"FERRY", fmt.Sprintf("%s", v.Routes[0][1]), "Paxs", fmt.Sprintf("%d", len(v.Passengers))}},
+			props.TableList{
+				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{2, 5, 3, 2}},
+				Line:               true,
+				Align:              consts.Middle,
+				HeaderContentSpace: -5,
+			})
+	}
 	m.Row(2, func() {
-		m.Text("VALOR TOTAL: $240,00", props.Text{Size: litleSize})
+		m.Text(fmt.Sprintf("VALOR TOTAL: $%d", total), props.Text{Size: litleSize})
 	})
 	m.Row(2, func() {
-		m.Text("VENDEDOR: Mory Freire", props.Text{Size: litleSize})
+		m.Text(fmt.Sprintf("VENDEDOR: %s", user), props.Text{Size: litleSize})
 	})
 	m.Row(2, func() {
-		m.Text("FECHA DE VENTA: 10-marzo", props.Text{Size: litleSize})
+		m.Text(fmt.Sprintf("FECHA DE VENTA: %v", reports.FormatDate(primitive.NewDateTimeFromTime(time.Now()))), props.Text{Size: litleSize})
 	})
+}
+func getTickeHeight(nRoutes int, ticketType string) float64 {
+	switch ticketType {
+	case "clientTicket":
+		if nRoutes == 0 {
+			return 80.0
+		} else {
+			return 90.0 + (16.0 * float64(nRoutes))
+		}
+	case "copyTicket":
+		if nRoutes == 0 {
+			return 35.0
+		} else {
+			return 40.0 + (17.0 * float64(nRoutes))
+		}
+	default:
+		return 80.0
+	}
 }

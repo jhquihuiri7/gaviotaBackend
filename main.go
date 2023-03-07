@@ -120,6 +120,7 @@ func main() {
 	router.HandleFunc("/api/generateTicket2", tickets.GenerateTicket2).Methods("GET", "OPTIONS")
 	router.HandleFunc("/api/GaviotaTicketFerry", tickets.GenerateTicket2).Methods("GET", "OPTIONS")
 	router.HandleFunc("/api/printTicket", utils.PrintTicket).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/printTicketCopy", utils.PrintTicketCopy).Methods("GET", "OPTIONS")
 
 	//GaviotaTicketFerry
 	router.HandleFunc("/api/getPrinters", utils.GetPrinters).Methods("GET", "OPTIONS")

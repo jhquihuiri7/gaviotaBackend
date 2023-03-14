@@ -30,13 +30,13 @@ func GenerateHeaderTicket(m pdf.Maroto, litleSize float64, lang string) {
 		if lang == "es" {
 			text = append(text, "TICKET DE LANCHA")
 			text = append(text, "Av. Española y Charles Darwin")
-			text = append(text, "Celular: 0993731079")
-			text = append(text, "Correo: ventasdarwinscubadive@gmail.com")
+			text = append(text, "Celular: +593 99 892 7034 / +593 99 373 1079")
+			text = append(text, "Correo: gaviota.ferry@gmail.com")
 		} else {
 			text = append(text, "FERRY TICKET")
 			text = append(text, "Av. Española y Charles Darwin")
-			text = append(text, "Phone: 0993731079")
-			text = append(text, "Email: ventasdarwinscubadive@gmail.com")
+			text = append(text, "Phone: +593 99 892 7034 / +593 99 373 1079")
+			text = append(text, "Email: gaviota.ferry@gmail.com")
 		}
 
 		m.Col(6, func() {

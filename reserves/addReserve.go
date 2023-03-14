@@ -93,24 +93,40 @@ func AddReserves(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if reservesGaviota != nil {
-		variables.ReservesGaviotaCollection.InsertMany(context.TODO(), reservesGaviota)
-		response.Succes = reserveNumber
-		//go func() {
-		//	var dialer websocket.Dialer
-		//	conn, _, err := dialer.Dial("wss://websocket-microservice.herokuapp.com/api/wsGaviota", http.Request{}.Header)
-		//	defer conn.Close()
-		//	if err != nil {
-		//		fmt.Println(err)
-		//	}
-		//	err = conn.WriteJSON(reservesGaviota)
-		//	if err != nil {
-		//		fmt.Println(err)
-		//	}
-		//}()
+		res, err := variables.ReservesGaviotaCollection.InsertMany(context.TODO(), reservesGaviota)
+		if err != nil {
+			response.Error = err.Error()
+		} else {
+			if len(res.InsertedIDs) == len(reservesGaviota) {
+				response.Succes = reserveNumber
+			} else {
+				response.Error = "No se ingresaron las reservas de gaviota."
+			}
+		}
 	}
 	if reservesOther != nil {
-		variables.ReservesOtherCollection.InsertMany(context.TODO(), reservesOther)
-		response.Succes = reserveNumber
+		res, err := variables.ReservesOtherCollection.InsertMany(context.TODO(), reservesOther)
+		if err != nil {
+			if response.Succes != "" {
+				response.Error = "No se ingresaron las reservas de otras lanchas. Pero sí Gaviota con numero de reserva " + response.Succes
+				response.Succes = ""
+			} else {
+				response.Error += err.Error()
+			}
+		} else {
+			if len(res.InsertedIDs) == len(reservesOther) {
+				response.Succes = reserveNumber
+			} else {
+				if response.Succes != "" {
+					response.Error = "No se ingresaron las reservas de otras lanchas. Pero sí Gaviota con numero de reserva " + response.Succes
+					response.Succes = ""
+				} else {
+					response.Error += " No se ingresaron las reservas de otras lanchas."
+				}
+
+			}
+		}
+
 	}
 
 	JSONresponse, err := json.Marshal(response)

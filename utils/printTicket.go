@@ -28,7 +28,7 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	ticketsData, _ := tickets.GetReservesTicket2(reserve)
+	ticketsData, total := tickets.GetReservesTicket2(reserve)
 	litleSize := 8.0
 	var text []string
 	if lang == "es" {
@@ -42,8 +42,10 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 		text = append(text, "Phone: 0993731079")
 		text = append(text, "Email: gaviota.ferry@gmail.com")
 	}
-	m := pdf.NewMarotoCustomSize(consts.Portrait, "c6", "mm", 74.0, getTickeHeight(len(ticketsData), "clientTicket"))
-	m.SetPageMargins(5, 0, 5)
+	m := pdf.NewMarotoCustomSize(consts.Portrait, "c6", "mm", 80.0, getTickeHeight(len(ticketsData), "clientTicket"))
+	m.SetBorder(false)
+	m.SetPageMargins(1, 0, 1)
+
 	m.SetBorder(false)
 
 	m.Row(13, func() {
@@ -58,7 +60,7 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	m.Row(3, func() {
 		m.Text(text[0], props.Text{
 			Align: consts.Center,
-			Size:  7,
+			Size:  litleSize,
 			Style: consts.Bold,
 		})
 	})
@@ -80,25 +82,26 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 			Size:  litleSize,
 		})
 	})
-	//Routes(m, litleSize, user, ticketsData, total)
+	Routes(m, litleSize, ticketsData)
+	Total(m, litleSize, user, total)
 	m.Row(3, func() {})
 	m.Row(3, func() {
 		m.Text("Condiciones de viaje:", props.Text{Size: litleSize, Align: consts.Left, Style: consts.Bold})
 	})
 	m.Row(10, func() {
-		m.Text("Cada  pasajero puede llevar 1 mochila de mano y 1 maleta de  20kg, si  excede  el peso  tendrá que pagar el valor adicional ($10-$15).", props.Text{Size: litleSize, Align: consts.Left})
+		m.Text("Cada pasajero puede llevar 1 mochila de mano y 1 maleta de 20kg,  si  excede  el peso  tendrá que pagar el valor adicional ($10-$15).", props.Text{Size: litleSize, Align: consts.Left})
 	})
 	m.Row(13, func() {
-		m.Text("Si  el  pasajero  no   viaja   deberá   informar  a  la agencia operadora donde compró su ticket con 24 horas de anticipación o perderá  su valor, con una penalidad  de $5 por cargos administrativos.", props.Text{Size: litleSize, Align: consts.Left})
+		m.Text("Si el pasajero  no viaja debe  informar a la agencia operadora donde compró su ticket con 24 horas de  anticipación al  viaje o  perderá   su  valor, con una   penalidad  de  $5  por  cargos administrativos.", props.Text{Size: litleSize, Align: consts.Left})
 	})
-	m.Row(7, func() {
-		m.Text("Se recomienda estar  50 minutos antes de la hora de salida.", props.Text{Size: litleSize, Align: consts.Left})
+	m.Row(5, func() {
+		m.Text("Se  recomienda  estar  50  minutos antes de la hora de salida.", props.Text{Size: litleSize, Align: consts.Left})
+	})
+	m.Row(8, func() {
+		m.Text("En  caso  de   retraso  del  pasajero  a  la  hora  de  salida,  la embarcación  no  se  responsabiliza por la pérdida del viaje.", props.Text{Size: litleSize, Align: consts.Left})
 	})
 	m.Row(10, func() {
-		m.Text("En  caso  de  retraso  del   pasajero   a la hora de salida, la  embarcación  no  se  responsabiliza por la pérdida del viaje.", props.Text{Size: litleSize, Align: consts.Left})
-	})
-	m.Row(10, func() {
-		m.Text("El  servicio   portuario  de taxis  acuáticos ($1,00)  en cada  isla y los  impuestos municipales en cada isla no están incluidos en el valor del ferry.", props.Text{Size: litleSize, Align: consts.Left})
+		m.Text("El servicio portuario de taxis acuáticos ($1,00)  en cada isla y los impuestos  municipales en cada isla no están incluidos en el valor del ferry.", props.Text{Size: litleSize, Align: consts.Left})
 	})
 	dd, err := m.Output()
 	if err != nil {
@@ -127,7 +130,8 @@ func PrintTicketCopy(w http.ResponseWriter, r *http.Request) {
 	m.Row(2, func() {
 		m.Text("(COPIA PARA OFICINA)", props.Text{Size: litleSize, Align: consts.Center})
 	})
-	Routes(m, litleSize, user, ticketsData, total)
+	Routes(m, litleSize, ticketsData)
+	Total(m, litleSize, user, total)
 	dd, err := m.Output()
 	if err != nil {
 		fmt.Println("Could not save PdfDaily:", err)
@@ -136,7 +140,7 @@ func PrintTicketCopy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=ticket.pdf")
 	w.Write(dd.Bytes())
 }
-func Routes(m pdf.Maroto, litleSize float64, user string, ticketsData []variables.Ticket, total int) {
+func Routes(m pdf.Maroto, litleSize float64, ticketsData []variables.Ticket) {
 
 	for i, v := range ticketsData {
 		m.Row(3, func() {
@@ -164,6 +168,9 @@ func Routes(m pdf.Maroto, litleSize float64, user string, ticketsData []variable
 				HeaderContentSpace: -5,
 			})
 	}
+
+}
+func Total(m pdf.Maroto, litleSize float64, user string, total int) {
 	m.Row(3, func() {
 		m.Text(fmt.Sprintf("VALOR TOTAL: $%d", total), props.Text{Size: litleSize})
 	})
@@ -178,9 +185,9 @@ func getTickeHeight(nRoutes int, ticketType string) float64 {
 	switch ticketType {
 	case "clientTicket":
 		if nRoutes == 0 {
-			return 80.0
+			return 115.0
 		} else {
-			return 100.0 + (50.0 * float64(nRoutes))
+			return 115.0 + 12 + (22.4 * float64(nRoutes))
 		}
 	case "copyTicket":
 		if nRoutes == 0 {

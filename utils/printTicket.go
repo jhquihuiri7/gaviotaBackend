@@ -103,6 +103,12 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	m.Row(10, func() {
 		m.Text("El servicio portuario de taxis acuáticos ($1,00)  en cada isla y los impuestos  municipales en cada isla no están incluidos en el valor del ferry.", props.Text{Size: litleSize, Align: consts.Left})
 	})
+	m.Line(2, props.Line{Style: consts.Dashed})
+	m.Row(3, func() {
+		m.Text("(COPIA PARA OFICINA)", props.Text{Size: litleSize, Align: consts.Center})
+	})
+	Routes(m, litleSize, ticketsData)
+	Total(m, litleSize, user, total)
 	dd, err := m.Output()
 	if err != nil {
 		fmt.Println("Could not save PdfDaily:", err)
@@ -124,10 +130,10 @@ func PrintTicketCopy(w http.ResponseWriter, r *http.Request) {
 	ticketsData, total := tickets.GetReservesTicket2(reserve)
 	litleSize := 8.0
 
-	m := pdf.NewMarotoCustomSize(consts.Portrait, "A7", "mm", 74.0, getTickeHeight(len(ticketsData), "copyTicket"))
-	m.SetPageMargins(5, 5, 5)
+	m := pdf.NewMarotoCustomSize(consts.Portrait, "A7", "mm", 80.0, getTickeHeight(len(ticketsData), "copyTicket"))
+	m.SetPageMargins(1, 5, 1)
 
-	m.Row(2, func() {
+	m.Row(3, func() {
 		m.Text("(COPIA PARA OFICINA)", props.Text{Size: litleSize, Align: consts.Center})
 	})
 	Routes(m, litleSize, ticketsData)
@@ -160,9 +166,9 @@ func Routes(m pdf.Maroto, litleSize float64, ticketsData []variables.Ticket) {
 			[][]string{
 				{"Fecha", fmt.Sprintf("%s", v.Routes[0][0]), "Hora", fmt.Sprintf("%s", v.Routes[0][3])},
 				{"Ruta", fmt.Sprintf("%s-%s", tickets.TranslateRoute(v.RouteId[0])[0], tickets.TranslateRoute(v.RouteId[0])[1]), "Chequeo", fmt.Sprintf("%s", v.Routes[0][2])},
-				{"FERRY", fmt.Sprintf("%s", v.Routes[0][1]), "Paxs", fmt.Sprintf("%d", len(v.Passengers))}},
+				{"Ferry", fmt.Sprintf("%s", v.Routes[0][1]), "Paxs", fmt.Sprintf("%d", len(v.Passengers))}},
 			props.TableList{
-				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{2, 5, 3, 2}},
+				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{1, 7, 2, 2}},
 				Line:               true,
 				Align:              consts.Middle,
 				HeaderContentSpace: -5,
@@ -187,13 +193,13 @@ func getTickeHeight(nRoutes int, ticketType string) float64 {
 		if nRoutes == 0 {
 			return 115.0
 		} else {
-			return 115.0 + 12 + (22.4 * float64(nRoutes))
+			return 115.0 + 24 + (42 * float64(nRoutes))
 		}
 	case "copyTicket":
-		if nRoutes == 0 {
-			return 35.0
+		if nRoutes == 1 {
+			return 80
 		} else {
-			return 40.0 + (17.0 * float64(nRoutes))
+			return 35.0 + 12 + (21 * float64(nRoutes))
 		}
 	default:
 		return 80.0

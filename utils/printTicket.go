@@ -42,9 +42,9 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 		text = append(text, "Phone: 0993731079")
 		text = append(text, "Email: gaviota.ferry@gmail.com")
 	}
-	m := pdf.NewMarotoCustomSize(consts.Portrait, "c6", "mm", 80.0, getTickeHeight(len(ticketsData), "clientTicket"))
+	m := pdf.NewMarotoCustomSize(consts.Portrait, "c6", "mm", 78.0, getTickeHeight(len(ticketsData), "clientTicket"))
 	m.SetBorder(false)
-	m.SetPageMargins(1, 0, 1)
+	m.SetPageMargins(0.5, 0, 1)
 
 	m.SetBorder(false)
 
@@ -56,7 +56,6 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 				Center:  true,
 			})
 	})
-
 	m.Row(3, func() {
 		m.Text(text[0], props.Text{
 			Align: consts.Center,
@@ -76,7 +75,7 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 			Size:  litleSize,
 		})
 	})
-	m.Row(6, func() {
+	m.Row(4, func() {
 		m.Text(text[3], props.Text{
 			Align: consts.Center,
 			Size:  litleSize,
@@ -88,20 +87,20 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	m.Row(3, func() {
 		m.Text("Condiciones de viaje:", props.Text{Size: litleSize, Align: consts.Left, Style: consts.Bold})
 	})
+	m.Row(9, func() {
+		m.Text("Cada  pasajero  puede  llevar 1 mochila de mano y 1 maleta de  20kg, si sobrepasa  el peso  tendrá  que  pagar  el  valor adicional ($10-$15).", props.Text{Size: litleSize, Align: consts.Left})
+	})
+	m.Row(12, func() {
+		m.Text("Si el pasajero no viaja debe informar a la agencia operadora donde compró su ticket con 24 horas de anticipación al viaje o perderá  su valor, con una penalidad  de  $5  por  cargos administrativos.", props.Text{Size: litleSize, Align: consts.Left})
+	})
+	m.Row(3, func() {
+		m.Text("Se recomienda  estar 50 minutos antes de la hora de salida.", props.Text{Size: litleSize, Align: consts.Left})
+	})
+	m.Row(7, func() {
+		m.Text("En caso de  retraso  del  pasajero  a  la  hora  de  salida,  la embarcación  no  se  responsabiliza por la pérdida del viaje.", props.Text{Size: litleSize, Align: consts.Left})
+	})
 	m.Row(10, func() {
-		m.Text("Cada pasajero puede llevar 1 mochila de mano y 1 maleta de 20kg,  si  excede  el peso  tendrá que pagar el valor adicional ($10-$15).", props.Text{Size: litleSize, Align: consts.Left})
-	})
-	m.Row(13, func() {
-		m.Text("Si el pasajero  no viaja debe  informar a la agencia operadora donde compró su ticket con 24 horas de  anticipación al  viaje o  perderá   su  valor, con una   penalidad  de  $5  por  cargos administrativos.", props.Text{Size: litleSize, Align: consts.Left})
-	})
-	m.Row(5, func() {
-		m.Text("Se  recomienda  estar  50  minutos antes de la hora de salida.", props.Text{Size: litleSize, Align: consts.Left})
-	})
-	m.Row(8, func() {
-		m.Text("En  caso  de   retraso  del  pasajero  a  la  hora  de  salida,  la embarcación  no  se  responsabiliza por la pérdida del viaje.", props.Text{Size: litleSize, Align: consts.Left})
-	})
-	m.Row(10, func() {
-		m.Text("El servicio portuario de taxis acuáticos ($1,00)  en cada isla y los impuestos  municipales en cada isla no están incluidos en el valor del ferry.", props.Text{Size: litleSize, Align: consts.Left})
+		m.Text("El servicio  portuario de taxis acuáticos ($1,00)  en cada isla y los impuestos  municipales en cada isla no están incluidos en el valor del ferry.", props.Text{Size: litleSize, Align: consts.Left})
 	})
 	m.Line(2, props.Line{Style: consts.Dashed})
 	m.Row(3, func() {
@@ -147,11 +146,12 @@ func PrintTicketCopy(w http.ResponseWriter, r *http.Request) {
 	w.Write(dd.Bytes())
 }
 func Routes(m pdf.Maroto, litleSize float64, ticketsData []variables.Ticket) {
-
 	for i, v := range ticketsData {
+		m.Row(2, func() {})
 		m.Row(3, func() {
 			m.Text(fmt.Sprintf("RUTA %d", i+1), props.Text{Size: litleSize, Style: consts.BoldItalic, Align: consts.Center})
 		})
+		m.Row(2, func() {})
 		m.TableList(
 			[]string{"", ""},
 			[][]string{{"Referencia", fmt.Sprintf("%s x%d", v.Passengers[0][0], len(v.Passengers))}},
@@ -193,7 +193,7 @@ func getTickeHeight(nRoutes int, ticketType string) float64 {
 		if nRoutes == 0 {
 			return 115.0
 		} else {
-			return 115.0 + 24 + (42 * float64(nRoutes))
+			return 103.0 + 24 + (51 * float64(nRoutes))
 		}
 	case "copyTicket":
 		if nRoutes == 1 {

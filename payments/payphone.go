@@ -36,7 +36,7 @@ func PaymentResponse(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
-	req.Header.Add("Authorization", "Bearer 98IVdcZW4yAub2AjI_jXsVh-GoQ-oZvtQHIo50CvrBKfwS2nw7WxH9MK63YiDCTZJlSRa6e4bNgTv5h3IM1tvIR1letrEme4qjsXgB8Qx8o8OJF4VWwXSvcARHBtcjCnYKY_osIrQzDM4u6QCnls3eseL6636xmj2ZiqS6NLIRGN15_3N5WgYQDZZ3XdjVS3CuMeAatDm1_mvfGwr3ys804lBTVJggg8aWhA_DmcICPUDeFsmV3xhuuKece9UUnJ5bfg31ibXaj6cg9hOi-t8qoaLz6WqsINSRCOwDO8b60RiivxGjEHtENqReyW_0-gaEx5fg")
+	req.Header.Add("Authorization", Authorization)
 	req.Header.Add("Content-Type", "application/json")
 	res, err := client.Do(req)
 	if err != nil {
@@ -86,39 +86,3 @@ func GetPaymentHistory(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Fprintln(w, string(JSONresponse))
 }
-
-//sqlStatement := `CREATE TABLE HistoricalPayments (
-//    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-//    email varchar(255),
-//    cardType varchar(255),
-//    bin varchar(255),
-//    lastDigits varchar(255),
-//    deferredCode varchar(255),
-//    deferred INTEGER,
-//    cardBrandCode varchar(255),
-//    cardBrand varchar(255),
-//    amount INTEGER,
-//    clientTransactionId varchar(255),
-//    phoneNumber varchar(255),
-//    statusCode INTEGER,
-//    transactionStatus varchar(255),
-//    authorizationCode varchar(255),
-//    messageCode INTEGER,
-//    transactionId INTEGER,
-//    document varchar(255),
-//    currency varchar(255),
-//    optionalParameter1 varchar(255),
-//    optionalParameter2 varchar(255),
-//    optionalParameter3 varchar(255),
-//    optionalParameter4 varchar(255),
-//    storeName varchar(255),
-//    date varchar(255),
-//    regionIso varchar(255),
-//    transactionType varchar(255),
-//    reference varchar(255)
-//);`
-//_, err = db.Exec(sqlStatement)
-//if err != nil {
-//log.Printf("%q: %s\n", err, sqlStatement)
-//return
-//}

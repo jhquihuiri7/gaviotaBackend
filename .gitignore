@@ -1,2 +1,5 @@
 files/*.pem
 DB/*.crt
+payments/paymentKeys.go
+storage/storageKeys.go
+

@@ -3,12 +3,12 @@ package utils
 import (
 	"context"
 	"fmt"
+	"gaviotaBackend/overide/pdf"
 	"gaviotaBackend/reports"
 	"gaviotaBackend/tickets"
 	"gaviotaBackend/variables"
-	"github.com/johnfercher/maroto/pkg/consts"
-	"github.com/johnfercher/maroto/pkg/pdf"
-	"github.com/johnfercher/maroto/pkg/props"
+	"github.com/sanketbajoria/maroto/pkg/consts"
+	"github.com/sanketbajoria/maroto/pkg/props"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -43,6 +43,7 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 		text = append(text, "Email: gaviota.ferry@gmail.com")
 	}
 	m := pdf.NewMarotoCustomSize(consts.Portrait, "c6", "mm", 78.0, getTickeHeight(len(ticketsData), "clientTicket"))
+
 	m.SetBorder(false)
 	m.SetPageMargins(0.5, 0, 1)
 
@@ -102,7 +103,7 @@ func PrintTicket(w http.ResponseWriter, r *http.Request) {
 	m.Row(10, func() {
 		m.Text("El servicio  portuario de taxis acuáticos ($1,00)  en cada isla y los impuestos  municipales en cada isla no están incluidos en el valor del ferry.", props.Text{Size: litleSize, Align: consts.Left})
 	})
-	m.Line(2, props.Line{Style: consts.Dashed})
+	m.Line(2)
 	m.Row(3, func() {
 		m.Text("(COPIA PARA OFICINA)", props.Text{Size: litleSize, Align: consts.Center})
 	})
@@ -156,7 +157,7 @@ func Routes(m pdf.Maroto, litleSize float64, ticketsData []variables.Ticket) {
 			[]string{"", ""},
 			[][]string{{"Referencia", fmt.Sprintf("%s x%d", v.Passengers[0][0], len(v.Passengers))}},
 			props.TableList{
-				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{4, 8}},
+				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{8, 16}},
 				HeaderContentSpace: -5,
 				Line:               true,
 				Align:              consts.Middle,
@@ -168,7 +169,7 @@ func Routes(m pdf.Maroto, litleSize float64, ticketsData []variables.Ticket) {
 				{"Ruta", fmt.Sprintf("%s-%s", tickets.TranslateRoute(v.RouteId[0])[0], tickets.TranslateRoute(v.RouteId[0])[1]), "Chequeo", fmt.Sprintf("%s", v.Routes[0][2])},
 				{"Ferry", fmt.Sprintf("%s", v.Routes[0][1]), "Paxs", fmt.Sprintf("%d", len(v.Passengers))}},
 			props.TableList{
-				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{1, 7, 2, 2}},
+				ContentProp:        props.TableListContent{Size: litleSize, GridSizes: []uint{2, 14, 4, 4}},
 				Line:               true,
 				Align:              consts.Middle,
 				HeaderContentSpace: -5,
@@ -191,15 +192,15 @@ func getTickeHeight(nRoutes int, ticketType string) float64 {
 	switch ticketType {
 	case "clientTicket":
 		if nRoutes == 0 {
-			return 115.0
+			return 105.0
 		} else {
-			return 103.0 + 24 + (51 * float64(nRoutes))
+			return 93.0 + 24 + (51 * float64(nRoutes))
 		}
 	case "copyTicket":
 		if nRoutes == 1 {
 			return 80
 		} else {
-			return 35.0 + 12 + (21 * float64(nRoutes))
+			return 25.0 + 12 + (21 * float64(nRoutes))
 		}
 	default:
 		return 80.0

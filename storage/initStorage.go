@@ -14,7 +14,7 @@ import (
 
 func InitStorage() *cloudinary.Cloudinary {
 	// Add your Cloudinary credentials.
-	cld, _ := cloudinary.NewFromParams("logicielapplab", "667244167665823", "zA5hDDm8aykVffsUJvwmEZlEleE")
+	cld, _ := cloudinary.NewFromParams("logicielapplab", StorageKey, StorageSecret)
 	return cld
 }
 func UploadAsset(cld *cloudinary.Cloudinary, file *excelize.File, date time.Time) string {

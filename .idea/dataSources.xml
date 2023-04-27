@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="admin@logiciel-applab-dab57134.mongo.ondigitalocean.com" uuid="dd5a7084-3bfa-4580-a1c7-3123ccbc62ee">
+      <driver-ref>documentdb</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
+      <jdbc-url>mongodb+srv://doadmin:Z3d87ni4E91g05aX@logiciel-applab-dab57134.mongo.ondigitalocean.com/admin?authSource=admin&amp;replicaSet=logiciel-applab&amp;readPreference=primary&amp;ssl=true&amp;tlsCAFile=D%3A%5CT%C3%A9l%C3%A9chargements%5Cca-certificate.crt</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>

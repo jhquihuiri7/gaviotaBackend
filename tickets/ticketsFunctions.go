@@ -192,26 +192,26 @@ func TranslateTimeCheckIn(route, time string) []string {
 	var translatedMap []string
 	if route == "SX-SC" {
 		if time == "Am" {
-			translatedMap = append(translatedMap, "06:15")
+			translatedMap = append(translatedMap, "06:10")
 			translatedMap = append(translatedMap, "07:00")
 		} else {
-			translatedMap = append(translatedMap, "14:15")
+			translatedMap = append(translatedMap, "14:10")
 			translatedMap = append(translatedMap, "15:00")
 		}
 	} else if route == "SC-SX" {
 		if time == "Am" {
-			translatedMap = append(translatedMap, "06:20")
+			translatedMap = append(translatedMap, "06:10")
 			translatedMap = append(translatedMap, "07:00")
 		} else {
-			translatedMap = append(translatedMap, "14:20")
+			translatedMap = append(translatedMap, "14:10")
 			translatedMap = append(translatedMap, "15:00")
 		}
 	} else if route == "SX-IB" {
 		if time == "Am" {
-			translatedMap = append(translatedMap, "06:20")
+			translatedMap = append(translatedMap, "06:10")
 			translatedMap = append(translatedMap, "07:00")
 		} else {
-			translatedMap = append(translatedMap, "14:15")
+			translatedMap = append(translatedMap, "14:10")
 			translatedMap = append(translatedMap, "15:00")
 		}
 	} else if route == "IB-SX" {
@@ -219,21 +219,21 @@ func TranslateTimeCheckIn(route, time string) []string {
 			translatedMap = append(translatedMap, "05:20")
 			translatedMap = append(translatedMap, "06:00")
 		} else {
-			translatedMap = append(translatedMap, "14:20")
+			translatedMap = append(translatedMap, "14:10")
 			translatedMap = append(translatedMap, "15:00")
 		}
 	} else if route == "SX-FL" {
 		translatedMap = append(translatedMap, "07:20")
 		translatedMap = append(translatedMap, "08:00")
 	} else if route == "FL-SX" {
-		translatedMap = append(translatedMap, "14:20")
+		translatedMap = append(translatedMap, "14:10")
 		translatedMap = append(translatedMap, "15:00")
 	} else {
 		if time == "Am" {
-			translatedMap = append(translatedMap, "06:15")
+			translatedMap = append(translatedMap, "06:10")
 			translatedMap = append(translatedMap, "07:00")
 		} else {
-			translatedMap = append(translatedMap, "14:15")
+			translatedMap = append(translatedMap, "14:10")
 			translatedMap = append(translatedMap, "15:00")
 		}
 	}

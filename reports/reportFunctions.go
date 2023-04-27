@@ -24,16 +24,6 @@ func GetDailyReportNODELETED(DailyRequest variables.DailyReportRequest) []variab
 			Reserves = append(Reserves, reserve)
 		}
 	}
-	//var CellValues [][]string
-	//for i, v := range Reserves {
-	//	var cellTemp []string
-	//	cellTemp = append(cellTemp, fmt.Sprintf("%d", i+1))
-	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Passenger))
-	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Country))
-	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Passport))
-	//	cellTemp = append(cellTemp, fmt.Sprintf("%v", v.Age))
-	//	CellValues = append(CellValues, cellTemp)
-	//}
 	return Reserves
 }
 func FormatDate(date primitive.DateTime) string {

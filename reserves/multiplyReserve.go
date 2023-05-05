@@ -42,18 +42,18 @@ func MultiplyReserve(multiplyReserve variables.MultiplyReserve) variables.Reserv
 }
 func MultiplyReserveExternal(multiplyReserve variables.MultiplyReserve) variables.Reserve {
 	age := time.Now().AddDate(-multiplyReserve.Birthday.Time().Year(), int(-multiplyReserve.Birthday.Time().Month()), -multiplyReserve.Birthday.Time().Day())
-	price := 0
+	//price := 0
 	ageInt := age.Year()
 	if age.Year() < 0 {
 		ageInt = 0
 	}
-	if ageInt >= 0 && ageInt < 2 {
-		price = 0
-	} else if ageInt >= 12 {
-		price = 30
-	} else {
-		price = 20
-	}
+	//if ageInt >= 0 && ageInt < 2 {
+	//	price = 0
+	//} else if ageInt >= 12 {
+	//	price = 30
+	//} else {
+	//	price = 20
+	//}
 	return variables.Reserve{
 		Id:             multiplyReserve.Id,
 		ReserveNumber:  multiplyReserve.ReserveNumber,
@@ -65,7 +65,7 @@ func MultiplyReserveExternal(multiplyReserve variables.MultiplyReserve) variable
 		Time:           multiplyReserve.Time,
 		Passport:       strings.ToUpper(multiplyReserve.Passport),
 		Country:        multiplyReserve.Country,
-		Price:          price,
+		Price:          multiplyReserve.Price,
 		Ship:           "Undefined",
 		Route:          multiplyReserve.Route,
 		IsConfirmed:    true,
@@ -73,7 +73,7 @@ func MultiplyReserveExternal(multiplyReserve variables.MultiplyReserve) variable
 		Birthday:       multiplyReserve.Birthday,
 		Status:         multiplyReserve.Status,
 		Comment:        strings.ToUpper(multiplyReserve.Comment),
-		Notes:          strings.ToUpper("Pending"),
+		Notes:          strings.ToUpper(multiplyReserve.Notes),
 		Phone:          multiplyReserve.Phone,
 		PaymentMethod:  "No realizado",
 		PaymentDate:    multiplyReserve.PaymentDate,

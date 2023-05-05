@@ -206,9 +206,11 @@ func EditReserveExternalBase(w http.ResponseWriter, r *http.Request) {
 	if response.Error == "" {
 		for _, v := range reserves {
 			response = EditExternal(v)
+			if response.Error == "" {
+				response.Succes = v.ReserveNumber
+			}
 		}
 	}
-
 	JSONresponse, _ := json.Marshal(response)
 	fmt.Fprintln(w, string(JSONresponse))
 }

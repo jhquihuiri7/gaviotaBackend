@@ -146,17 +146,9 @@ func main() {
 					fmt.Println(deleted.Deleted)
 				}
 			}
-			//Dutation == 1 week
 			time.Sleep(time.Hour * 168)
 		}
 	}()
-
-	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		data := variables.Reserve{Id: "fsdfsd", User: "Fsdfsd", Ship: "Gaviota"}
-		var datas []interface{}
-		datas = append(datas, data)
-		ws.SendSocketMessage(datas)
-	}).Methods("GET", "OPTIONS")
 
 	port := os.Getenv("PORT")
 	http.ListenAndServe(":"+port, router)

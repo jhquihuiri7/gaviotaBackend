@@ -69,6 +69,9 @@ func GetRoutes(reserves []variables.Reserve) []variables.TicketRoute {
 		}
 	}
 	sort.Slice(ticketRoutes, func(i, j int) bool {
+		return ticketRoutes[i].Time < ticketRoutes[j].Time
+	})
+	sort.Slice(ticketRoutes, func(i, j int) bool {
 		return ticketRoutes[i].Date < ticketRoutes[j].Date
 	})
 	return ticketRoutes
